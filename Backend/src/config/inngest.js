@@ -4,13 +4,11 @@ import User from "../models/user.model.js"
 
 
 export const inngest = new Inngest({ id: "ecom-app" })
-
 const syncUser = inngest.createFunction(
     {
         id: "sync-user",
-        triggers: [{ event: "clerk/user.created" }]
+        triggers: [{ event: "clerk.user.created" }] 
     },
-
 
     async ({ event }) => {
         await connectDB()
@@ -29,7 +27,8 @@ const syncUser = inngest.createFunction(
   
         await User.create(newUser)
     }
-)
+);
+
 
 
 const deleteUser = inngest.createFunction(
