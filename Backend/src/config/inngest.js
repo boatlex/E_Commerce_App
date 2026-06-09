@@ -4,44 +4,57 @@ import User from "../models/user.model.js"
 
 
 export const inngest = new Inngest({ id: "ecom-app" })
-
 const syncUser = inngest.createFunction(
     {
         id: "sync-user",
-        triggers: [{ event: "clerk/user.created" }]
+        triggers: [{ event: "clerk.user.created" }] 
     },
+    async ({ event, step }) => {
+        await step.run("connect-to-db", async () => {
+            await connectDB();
+        });
 
+        const userData = event.data;
+        const { id, first_name, last_name, image_url } = userData;
 
-    async ({ event }) => {
-        await connectDB()
-           
-    const userData = event.data;
+        let primaryEmailObj = userData?.email_addresses?.find(
+            (email) => email.id === userData.primary_email_address_id
+        );
+        
+    
+        if (!primaryEmailObj && userData?.email_addresses?.length > 0) {
+            primaryEmailObj = userData.email_addresses[0];
+        }
 
-// 1. Destructure the required variables from userData
-const { id, first_name, last_name, image_url } = userData;
+    
+        const primaryEmail = primaryEmailObj?.email_address || userData?.external_accounts?.[0]?.email_address;
 
-// 2. Find the primary email safely
-const primaryEmailObj = userData?.email_addresses?.find(
-    (email) => email.id === userData.primary_email_address_id
-);
-const primaryEmail = primaryEmailObj?.email_address;
+        if (!primaryEmail) {
+            throw new Error(`CRITICAL: No email address found in Clerk payload for user ${id}`);
+        }
+        
 
-// 3. Format name correctly (trim removes extra spaces if last_name is missing)
-const fullName = `${first_name || ""} ${last_name || ""}`.trim() || "User";
+        const fullName = `${first_name || ""} ${last_name || ""}`.trim() || "User";
 
-const newUser = {
-    clerkId: id, // Now defined
-    email: primaryEmail,
-    name: fullName,
-    imageUrl: image_url, // Now defined
-    addresses: [],
-    wishList: [],
-};
+        const newUser = {
+            clerkId: id,
+            email: primaryEmail,
+            name: fullName,
+            imageUrl: image_url,
+            addresses: [],
+            wishList: [],
+        };
 
-// 4. Use create (or findOneAndUpdate to prevent duplicate errors on retry)
-await User.create(newUser);
+        await step.run("upsert-user-to-db", async () => {
+            return await User.findOneAndUpdate(
+                { clerkId: id },
+                newUser,
+                { upsert: true, new: true }
+            );
+        });
     }
-)
+);
+
 
 
 const deleteUser = inngest.createFunction(
