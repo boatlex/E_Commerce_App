@@ -14,32 +14,20 @@ const syncUser = inngest.createFunction(
 
     async ({ event }) => {
         await connectDB()
-           
-    const userData = event.data;
 
-// 1. Destructure the required variables from userData
-const { id, first_name, last_name, image_url } = userData;
-
-// 2. Find the primary email safely
-const primaryEmailObj = userData?.email_addresses?.find(
-    (email) => email.id === userData.primary_email_address_id
-);
-const primaryEmail = primaryEmailObj?.email_address;
-
-// 3. Format name correctly (trim removes extra spaces if last_name is missing)
-const fullName = `${first_name || ""} ${last_name || ""}`.trim() || "User";
-
-const newUser = {
-    clerkId: id, // Now defined
-    email: primaryEmail,
-    name: fullName,
-    imageUrl: image_url, // Now defined
-    addresses: [],
-    wishList: [],
-};
-
-// 4. Use create (or findOneAndUpdate to prevent duplicate errors on retry)
-await User.create(newUser);
+         const userData = event.data
+        const { id, email_addresses, first_name, last_name, image_url } = userData
+          
+        const newUser = {
+            clerkId: id,
+            email: email_addresses[0]?.email_address,
+            name: `${first_name || ""} ${last_name || ""}`.trim() || "User",
+            imageUrl: image_url,
+            addresses: [],
+            wishList: [],
+        }
+  
+        await User.create(newUser)
     }
 )
 
