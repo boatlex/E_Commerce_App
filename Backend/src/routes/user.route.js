@@ -6,6 +6,6 @@ import { protectRoute } from "../middlewares/auth.middleware.js";
 
 const router = express.Router()
 
-router.post("/sync-user",protectRoute, syncUser)
+router.post("/sync-user", protectRoute, syncUser)
 
 export default router

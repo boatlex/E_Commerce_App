@@ -1,4 +1,5 @@
 import express from "express"
+import cors from "cors"
 import path from "path"
 import { clerkMiddleware, getAuth } from '@clerk/express'
 import { ENV } from "./config/env.js"
@@ -9,6 +10,14 @@ import adminRoutes from "./routes/admin.route.js"
 import userRoutes from "./routes/user.route.js"
 
 const app = express()
+
+app.use(cors({
+  origin: "http://localhost:5173", // Replace with your exact Vite frontend URL
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"] // Explicitly allow Clerk tokens
+}))
+
 
 const __dirname = path.resolve()
 
