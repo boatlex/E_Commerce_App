@@ -6,7 +6,7 @@ import {User} from "../models/user.model.js"
 export const inngest = new Inngest({ id: "ecom-app" })
 const syncUser = inngest.createFunction(
     {
-        id: "sync-user",
+        id: "sync-user-to-db",
         triggers: [{ event: "clerk.user.created" }] 
     },
 
