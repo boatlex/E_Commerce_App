@@ -12,7 +12,6 @@ function App() {
       try {
         // 2. Retrieve the short-lived session token
         const token = await getToken()
-
         // 3. Determine URL automatically (Development vs. Sevalla Production)
         const targetUrl = import.meta.env.DEV 
           ? "http://localhost:3000/api/users/sync-user" 
