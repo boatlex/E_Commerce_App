@@ -1,6 +1,6 @@
 import express from "express";
 import { syncUser } from "../controllers/user.controller.js";
-import { clerkMiddleware, requireAuth } from "@clerk/express";
+import { requireAuth } from "@clerk/express";
 
 
 const router = express.Router()
