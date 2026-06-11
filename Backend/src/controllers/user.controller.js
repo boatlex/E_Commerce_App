@@ -1,10 +1,11 @@
-import { clerkClient, clerkMiddleware, getAuth } from "@clerk/express"
+import { clerkClient, getAuth } from "@clerk/express"
 import { User } from "../models/user.model.js"
 
 export const syncUser = async (req, res) => {
     try {
-        const { userId } = getAuth(req)
-        console.log(userId)
+        const {userId}= getAuth(req)
+    
+        console.log("this is Critical", userId)
         if (!userId) {
             return res.status(401).json({ message: "Unauthorized. Missing token." })
         }
