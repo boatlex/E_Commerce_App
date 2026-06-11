@@ -1,5 +1,35 @@
 import mongoose from "mongoose";
 
+const shippingAdressSchema = new mongoose.Schema({
+    fullName: {
+        type: String,
+        required: true,
+
+    },
+    streetAddresss: {
+        type: String,
+        required: true,
+
+    },
+    city: {
+        type: String,
+        required: true,
+
+    },
+    state: {
+        type: String,
+        required: true,
+
+    },
+    zipCode:{
+        type:Number,
+        required:true,
+    },
+    phoneNumber:{
+        type:Number,
+        required:true,
+    },
+})
 const orderItemSchema = new mongoose.Schema({
     product: {
         type: mongoose.Schema.Types.ObjectId,
@@ -50,36 +80,6 @@ const orderItemSchema = new mongoose.Schema({
     },
 })
 
-const shippingAdressSchema = new mongoose.Schema({
-    fullName: {
-        type: String,
-        required: true,
-
-    },
-    streetAddresss: {
-        type: String,
-        required: true,
-
-    },
-    city: {
-        type: String,
-        required: true,
-
-    },
-    state: {
-        type: String,
-        required: true,
-
-    },
-    zipCode:{
-        type:Number,
-        required:true,
-    },
-    phoneNumber:{
-        type:Number,
-        required:true,
-    },
-})
 const orderSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,

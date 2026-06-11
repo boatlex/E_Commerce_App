@@ -31,8 +31,6 @@ app.use(clerkMiddleware())
 //app.use("/api/inngest", serve({ client: inngest, functions }))
 
 app.get("/api/health", (req, res) => {
-     const {userId} = getAuth(req)
-//   console.log(userId)
     res.status(200).json({ message: "Success App", userId})
 })
 
