@@ -6,7 +6,7 @@ import { addToCart, clearCart, getCart, removeFromCart,
 
 const router = express.Router()
 
-
+router.use(protectRoute)
 router.get("/", getCart)
 router.post("/", addToCart)
 router.put("/:productId", updateCartItem)
