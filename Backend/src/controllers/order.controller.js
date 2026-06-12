@@ -8,7 +8,7 @@ import { Review } from "../models/review.model.js"
 
 export const createOrder = async (req, res) => {
     try {
-        const { orderItems, shippindAddress, paymentResult, totalPrice } = req.body
+        const { orderItems, shippingAddress, paymentResult, totalPrice } = req.body
         const user = req.user
 
         if (orderItems && orderItems.length === 0) {
@@ -16,20 +16,20 @@ export const createOrder = async (req, res) => {
         }
 
         for (const item of orderItems) {
-            const product = Product.findById(item.product._id)
+            const product = await Product.findById(item.product._id)
 
             if (!product) {
                 return res.status(404).json({ message: `Product ${product.name} Not Found ` })
             }
             if (product.stock < item.quantity) {
-                res.status(400).json({ message: `Insufficient stock for ${product.name}` })
+               return res.status(400).json({ message: `Insufficient stock for ${product.name}` })
             }
         }
         const order = await Order.create({
             user: user._id,
             clerkId: user.clerkId,
             orderItems,
-            shippindAddress,
+            shippingAddress,
             paymentResult,
             totalPrice
 

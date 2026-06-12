@@ -2,6 +2,7 @@ import cloudinary from "../config/cloudinary.js"
 import { Product } from "../models/product.model.js"
 import { Order } from "../models/order.model.js"
 import { User } from "../models/user.model.js"
+import fs from "fs"
 
 
 
@@ -13,7 +14,7 @@ export const createProduct = async (req, res) => {
             return res.status(400).json({ message: "All fields are required" })
         }
 
-        if (!req.files && !req.files.length === 0) {
+        if (!req.files || !req.files.length === 0) {
             return res.status(400).json({ message: "At least one image is required" })
         }
 
@@ -21,12 +22,26 @@ export const createProduct = async (req, res) => {
             return res.status(400).json({ message: "Maximum three images are allowed" })
         }
 
-        const uploadPromise = req.files.map(file => {
-            return cloudinary.uploader.upload(file.path, {
-                folder: "products"
-            })
-        })
+        // const uploadPromise = req.files.map(file => {
+        //     return cloudinary.uploader.upload(file.path, {
+        //         folder: "products"
+        //     })
+        // })
 
+         const uploadPromise = req.files.map(async (file) => {
+        try {
+            const result = await cloudinary.uploader.upload(file.path, {
+                folder: "products"
+            });
+            
+            if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+            return result;
+        } catch (uploadError) {
+            
+            if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+            throw uploadError;
+        }
+    });
         const uploadResults = await Promise.all(uploadPromise)
 
         const imageUrl = uploadResults.map((result) => result.secure_url)
@@ -37,7 +52,7 @@ export const createProduct = async (req, res) => {
             price: parseFloat(price),
             stock: parseInt(stock),
             category,
-            image: imageUrl
+            images: imageUrl
         })
 
         res.status(201).json({ product })
@@ -61,43 +76,61 @@ export const getAllProducts = async (req, res) => {
 }
 
 export const updateProduct = async (req, res) => {
-    try {
-        const { name, description, price, stock, category } = req.body
-        const { id } = req.params
 
-        const product = await Product.findById(id)
-        if (!product) {
-            return res.status(404).json({ message: "Product Not Found" })
-        }
 
-        if (name) product.name = name
-        if (description) product.description = description
-        if (price !==undefined) product.price = parseFloat(price)
-        if (stock !== undefined) product.stock = parseInt(stock)
-        if (category) product.category = category
+try {
+    const { name, description, price, stock, category } = req.body;
+    const { id } = req.params;
 
-        if (req.files && req.files.length > 0) {
-            if (req.files.length > 3) {
-                return res.status(400).json({ message: "Maximum 3 images allowed" })
-            }
-        }
-
-        const uploadPromise = await req.files.map((file) => {
-            return cloudinary.uploader.upload(file.path, {
-                folder: 'products'
-            })
-        })
-
-        const uploadResults = await Promise.all(uploadPromise)
-        product.images = uploadResults.map((result) => result.secure_url)
-
-        await product.save()
-        res.status(200).json({ product })
-    } catch (error) {
-
-        console.error("Error Updating Products", error)
-        res.status(500).json({ message: "Internal Server Error" })
+    const product = await Product.findById(id);
+    if (!product) {
+        return res.status(404).json({ message: "Product Not Found" });
     }
+
+    if (name) product.name = name;
+    if (description) product.description = description;
+    if (price !== undefined) product.price = parseFloat(price);
+    if (stock !== undefined) product.stock = parseInt(stock);
+    if (category) product.category = category;
+
+    if (req.files && req.files.length > 0) {
+        if (req.files.length > 3) {
+            
+            req.files.forEach(file => { if (fs.existsSync(file.path)) fs.unlinkSync(file.path); });
+            return res.status(400).json({ message: "Maximum 3 images allowed" });
+        }
+
+        const uploadPromises = req.files.map(async (file) => {
+            try {
+                const result = await cloudinary.uploader.upload(file.path, {
+                    folder: 'products'
+                });
+                
+                if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+                return result;
+            } catch (err) {
+                if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+                throw err;
+            }
+        });
+
+        const uploadResults = await Promise.all(uploadPromises);
+        
+        product.images = uploadResults.map((result) => result.secure_url); 
+    }
+
+    await product.save();
+    res.status(200).json({ product });
+
+} catch (error) {
+    
+    if (req.files) {
+        req.files.forEach(file => { if (fs.existsSync(file.path)) fs.unlinkSync(file.path); });
+    }
+    console.error("Error Updating Product", error);
+    res.status(500).json({ message: "Internal Server Error" });
+}
+
 }
 
 export const getAllOrders = async (req, res) => {
@@ -119,7 +152,7 @@ export const updateOrderstatus = async (req, res) => {
         const { orderId } = req.params
         const { status } = req.body
 
-        if (!["pending", "shipped", "delivered"].includes(status)) {
+        if (!["pending", "shipped", "delivered","cancelled"].includes(status)) {
             return res.status(400).json({ message: "Invalid status" })
         }
         const order = await Order.findById(orderId)
@@ -133,7 +166,7 @@ export const updateOrderstatus = async (req, res) => {
             order.shippedAt = new Date()
         }
         if (status === "delivered" && !order.deliveredAt) {
-            order.deliverdAt = new Date()
+            order.deliveredAt = new Date()
         }
 
         await order.save()
@@ -159,10 +192,14 @@ export const getAllCustomers = async (req, res) => {
     }
 }
 export const getDashboardStats = async (req, res) => {
-    try {
-        const totalCustomers =await User.countDocuments()
-        const totalOrders = await Order.countDocuments()
-        const revenueResult = await Order.aggregate([
+   try {
+    
+    const [totalCustomers, totalOrders, totalProducts, revenueResult] = await Promise.all([
+        User.countDocuments(),
+        Order.countDocuments(),
+        Product.countDocuments(),
+        Order.aggregate([
+             
             {
                 $group: {
                     _id: null,
@@ -170,17 +207,19 @@ export const getDashboardStats = async (req, res) => {
                 },
             },
         ])
-        const totalRevenue = revenueResult[0]?.total || 0
-        const totalProducts = await Product.countDocuments()
+    ]);
 
-        res.status(200).json({
-            totalCustomers,
-            totalOrders,
-            totalRevenue,
-            totalProducts,
-        })
-    } catch (error) {
-        console.error("Error Fetching  DashBoard Stats", error)
-        res.status(500).json({ message: "Internal Server Error" })
-    }
+    const totalRevenue = revenueResult[0]?.total || 0;
+
+    res.status(200).json({
+        totalCustomers,
+        totalOrders,
+        totalRevenue,
+        totalProducts,
+    });
+} catch (error) {
+    console.error("Error Fetching DashBoard Stats", error);
+    res.status(500).json({ message: "Internal Server Error" });
+}
+
 }
