@@ -102,12 +102,12 @@ export const updateProduct = async (req, res) => {
 
 export const getAllOrders = async (req, res) => {
     try {
-        const order = (await Order.find().
-            populate("user", "name email")).
+        const orders = await Order.find().
+            populate("user", "name email").
             populate("orderItems.product").
             sort({ createdAt: -1 })
 
-        res.status(200).json({ order })
+        res.status(200).json({ orders })
     } catch (error) {
         console.error("Error Updating Products", error)
         res.status(500).json({ message: "Internal Server Error" })
