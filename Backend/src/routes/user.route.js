@@ -14,17 +14,22 @@ import { protectRoute } from "../middlewares/auth.middleware.js";
 
 const router = express.Router()
 
-router.post("/sync-user", syncUser)
+// Public Route
+router.post('/sync-user', syncUser);
 
-router.use(protectRoute)
-router.post("/addresses", addAddress)
-router.get("/addresses", getAddresses)
-router.put("/addresses/:addressId", updateAddress)
-router.delete("/addresses/:addressId", deleteAddress)
+// Protected Routes (Authentication Required)
+router.use(protectRoute);
 
-router.post("/wishList", addToWishList)
-router.post("/wishList", getWishList)
-router.delete("/wishList/:productId", removeFromWishList)
+// Address Management
+router.post('/addresses', addAddress);
+router.get('/addresses', getAddresses);
+router.put('/addresses/:addressId', updateAddress);
+router.delete('/addresses/:addressId', deleteAddress);
+
+// Wishlist Management
+router.post('/wishList', addToWishList);
+router.get('/wishList', getWishList);
+router.delete('/wishList/:productId', removeFromWishList);
 
 
 export default router
