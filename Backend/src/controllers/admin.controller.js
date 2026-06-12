@@ -146,7 +146,7 @@ export const getAllOrders = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error" })
     }
 }
-export const updateOrderstatus = async (req, res) => {
+export const updatedOrderStatus = async (req, res) => {
 
     try {
         const { orderId } = req.params

@@ -5,12 +5,14 @@ import { addToCart, clearCart, getCart, removeFromCart,
 
 
 const router = express.Router()
+// Protect all cart endpoints
+router.use(protectRoute);
 
-router.use(protectRoute)
-router.get("/", getCart)
-router.post("/", addToCart)
-router.put("/:productId", updateCartItem)
-router.delete("/:productId", removeFromCart)
-router.delete("/", clearCart)
+// Cart Operations
+router.get("/", getCart);
+router.post("/", addToCart);
+router.put("/:productId", updateCartItem);
+router.delete("/:productId", removeFromCart);
+router.delete("/", clearCart);
 
 export default router

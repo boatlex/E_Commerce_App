@@ -1,7 +1,12 @@
 import express from "express";
 import {
-    createProduct, getAllProducts, updateProduct, getAllOrders,
-    updateOrderstatus, getAllCustomers, getDashboardStats
+    createProduct,
+    getAllProducts,
+    updateProduct,
+    getAllOrders,
+    getAllCustomers,
+    getDashboardStats,
+    updatedOrderStatus
 } from "../controllers/admin.controller.js";
 import { adminOnly, protectRoute } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
@@ -9,17 +14,23 @@ import { upload } from "../middlewares/multer.middleware.js";
 
 
 
-const router = express.Router()
-router.use(protectRoute, adminOnly)
 
+const router = express.Router();
 
-router.post("/products", upload.array("images", 3), createProduct)
-router.put("/products/:id", upload.array("images", 3), updateProduct)
-router.get("/products", getAllProducts)
+// Apply global admin protection middleware
+router.use(protectRoute, adminOnly);
 
-router.get("/orders", getAllOrders)
-router.patch("/orders/:orderId/status", updateOrderstatus)
+// Product Management
+router.post("/products", upload.array("images", 3), createProduct);
+router.put("/products/:id", upload.array("images", 3), updateProduct);
+router.get("/products", getAllProducts);
 
-router.patch("/customers", getAllCustomers)
-router.patch("/tats", getDashboardStats)
-export default router
+// Order Management
+router.get("/orders", getAllOrders);
+router.patch("/orders/:orderId/status", updatedOrderStatus);
+
+// Customer & Business Insights
+router.get("/customers", getAllCustomers);
+router.get("/stats", getDashboardStats);
+
+export default router;
