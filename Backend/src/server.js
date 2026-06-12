@@ -11,11 +11,12 @@ import userRoutes from "./routes/user.route.js"
 import orderRoutes from "./routes/order.route.js"
 import reviewRoutes from "./routes/review.route.js"
 import productRoutes from "./routes/product.route.js"
+import cartRoutes from "./routes/cart.route.js"
 
 const app = express()
 
 app.use(cors({
-  origin: "http://localhost:5173", // Replace with your exact Vite frontend URL
+  origin: ENV.CLIENT_URL, // Replace with your exact Vite frontend URL
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"] // Explicitly allow Clerk tokens
@@ -42,6 +43,7 @@ app.use("/api/users", userRoutes)
 app.use("/api/orders", orderRoutes)
 app.use("/api/reviews", reviewRoutes)
 app.use("/api/products", productRoutes)
+app.use("/api/carts", cartRoutes)
 
 if (ENV.NODE_ENV === "production") {
     app.use(express.static(path.join(__dirname, "Admin", "dist")))
