@@ -11,9 +11,12 @@ import { LoaderIcon } from 'lucide-react'
 
 
 
+
+
 function App() {
   const { isSignedIn, isLoaded } = useAuth()
-  console.log(isSignedIn)
+
+  
 
   if (!isLoaded) {
     //<PageLoader/>
