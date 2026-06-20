@@ -5,7 +5,6 @@ export const syncUser = async (req, res) => {
     try {
         const { userId } = getAuth(req)
 
-        console.log("this is Critical", userId)
         if (!userId) {
             return res.status(401).json({ message: "Unauthorized. Missing token." })
         }

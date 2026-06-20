@@ -6,6 +6,7 @@ import { ENV } from "./config/env.js"
 import { connectDB } from "./config/db.js"
 import { serve } from "inngest/express"
 //import { inngest, functions } from "./config/inngest.js"
+
 import adminRoutes from "./routes/admin.route.js"
 import userRoutes from "./routes/user.route.js"
 import orderRoutes from "./routes/order.route.js"
@@ -19,7 +20,7 @@ app.use(cors({
   origin: ENV.CLIENT_URL, // Replace with your exact Vite frontend URL
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"] // Explicitly allow Clerk tokens
+  allowedHeaders: ["Content-Type", "Authorization"] 
 }))
 
 

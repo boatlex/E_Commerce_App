@@ -4,13 +4,11 @@ import { User } from "../models/user.model.js";
 
 
 
-export const protectRoute = [
-  async (req, res, next) => {
+export const protectRoute =  async (req, res, next) => {
   try {
     const authState = getAuth(req)
     const clerkId = authState?.userId
     
-    console.log("Middleware caught ID:", clerkId)
 
     if (!clerkId) {
       return res.status(401).json({ message: "Unauthorized - Invalid token" })
@@ -28,7 +26,7 @@ export const protectRoute = [
     return res.status(500).json({ message: "Internal Server Error" })
   }
 }
-]
+
 
 export const adminOnly = async (req, res, next)=>{
     if(!req.user){
