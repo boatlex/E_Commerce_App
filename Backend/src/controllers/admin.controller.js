@@ -192,34 +192,40 @@ export const getAllCustomers = async (req, res) => {
     }
 }
 export const getDashboardStats = async (req, res) => {
-   try {
-    
-    const [totalCustomers, totalOrders, totalProducts, revenueResult] = await Promise.all([
-        User.countDocuments(),
-        Order.countDocuments(),
-        Product.countDocuments(),
-        Order.aggregate([
-             
-            {
-                $group: {
-                    _id: null,
-                    total: { $sum: "$totalPrice" },
+    try {
+        const [totalCustomers, totalOrders, totalProducts, revenueResult] = await Promise.all([
+            // Only count users who have a 'customer' role (adjust based on your schema)
+            User.countDocuments({ role: "customer" }), 
+            
+            Order.countDocuments(),
+            
+            Product.countDocuments(),
+            
+            Order.aggregate([
+                // Filter out pending, cancelled, or failed orders for accurate revenue
+                { $match: { status: "paid" } }, // Adjust string to match your Order status values
+                {
+                    $group: {
+                        _id: null,
+                        total: { $sum: "$totalPrice" },
+                    },
                 },
-            },
-        ])
-    ]);
+            ])
+        ]);
 
-    const totalRevenue = revenueResult[0]?.total || 0;
+        const totalRevenue = revenueResult[0]?.total || 0;
 
-    res.status(200).json({
-        totalCustomers,
-        totalOrders,
-        totalRevenue,
-        totalProducts,
-    });
-} catch (error) {
-    console.error("Error Fetching DashBoard Stats", error);
-    res.status(500).json({ message: "Internal Server Error" });
-}
+        res.status(200).json({
+            totalCustomers,
+            totalOrders,
+            totalRevenue,
+            totalProducts,
+        });
+    } catch (error) {
+        console.error("Error Fetching DashBoard Stats", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
 
-}
+
+
