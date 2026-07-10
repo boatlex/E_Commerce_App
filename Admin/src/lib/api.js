@@ -38,3 +38,10 @@ export const userApi ={
         return data
     }
 }
+
+export const statsApi ={
+    getDashBoard: async()=>{
+        const {data} = await axiosInstance.get("/admin/stats")
+        return data
+    }
+}
