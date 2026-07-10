@@ -19,14 +19,13 @@ const DashboardPage = () => {
     queryFn:statsApi.getDashBoard
  })
 
- const recentOrders = ordersData?.orders.slice(0,5) ||[]
+ const recentOrders = ordersData?.orders?.slice(0,5) ||[]
 
- //console.log(statsData.totalOrders.toFixed(2))
 
  const statsCard =[
   {
     name:"Total Revenue",
-    value:statsIsloading?"...":`$${statsData?.totalRevenue.toFixed(2) || 0}`,
+    value:statsIsloading?"...":`$${statsData?.totalRevenue?.toFixed(2) || 0}`,
     icon:<DollarSignIcon className='w-8 h-8'/>
   },
   {
