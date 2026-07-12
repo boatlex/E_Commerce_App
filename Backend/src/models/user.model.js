@@ -54,7 +54,15 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+
+    role:{
+      type:String,
+      enum:["customer","admin"],
+      default:"customer",
+      index:true
+    },
     addresses: [addressSchema],
+    
     wishList: [
         {
             type: mongoose.Schema.Types.ObjectId,

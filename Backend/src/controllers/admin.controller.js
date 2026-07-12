@@ -3,69 +3,55 @@ import { Product } from "../models/product.model.js"
 import { Order } from "../models/order.model.js"
 import { User } from "../models/user.model.js"
 import fs from "fs"
-
+import path from "path"
 
 
 export const createProduct = async (req, res) => {
     try {
-        const { name, description, price, stock, category } = req.body
+        const { name, description, price, stock, category } = req.body;
 
-        if (!name || !description || !price || !stock || !category) {
-            return res.status(400).json({ message: "All fields are required" })
+
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({ message: "At least one image is required" });
         }
 
-        if (!req.files || !req.files.length === 0) {
-            return res.status(400).json({ message: "At least one image is required" })
-        }
+        
+        const uploadPromise = req.files.map(async (file) => {
+            const base64Image = Buffer.from(file.buffer).toString("base64");
+            const dataURI = `data:${file.mimetype};base64,${base64Image}`;
 
-        if (req.files.length > 3) {
-            return res.status(400).json({ message: "Maximum three images are allowed" })
-        }
-
-        // const uploadPromise = req.files.map(file => {
-        //     return cloudinary.uploader.upload(file.path, {
-        //         folder: "products"
-        //     })
-        // })
-
-         const uploadPromise = req.files.map(async (file) => {
-        try {
-            const result = await cloudinary.uploader.upload(file.path, {
+            
+            const result = await cloudinary.uploader.upload(dataURI, {
                 folder: "products"
             });
-            
-            if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
             return result;
-        } catch (uploadError) {
-            
-            if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
-            throw uploadError;
-        }
-    });
-        const uploadResults = await Promise.all(uploadPromise)
-
-        const imageUrl = uploadResults.map((result) => result.secure_url)
+        });
+        
+        const uploadResults = await Promise.all(uploadPromise);
+        const imageUrl = uploadResults.map((result) => result.secure_url);
 
         const product = await Product.create({
             name,
             description,
-            price: parseFloat(price),
-            stock: parseInt(stock),
+            price: parsedPrice,
+            stock: parsedStock,
             category,
             images: imageUrl
-        })
+        });
 
-        res.status(201).json({ product })
+        res.status(201).json({ product });
     } catch (error) {
-        console.error("Error Creating Product", error)
-        res.status(500).json({ message: "Internal Server Error" })
+        console.error("Error Creating Product", error);
+        res.status(500).json({ message: "Internal Server Error" });
     }
-}
+};
+
 
 export const getAllProducts = async (req, res) => {
 
     try {
-        const products = await Product.find().sort({ createdAt: -1 })
+        const products = await Product.find()
+            .sort({ createdAt: -1 }).lean()
         res.status(200).json({ products })
     } catch (error) {
         console.error("Error Fetching Products", error)
@@ -76,62 +62,58 @@ export const getAllProducts = async (req, res) => {
 }
 
 export const updateProduct = async (req, res) => {
+    try {
+        const { name, description, price, stock, category, existingImages } = req.body;
+        const { id } = req.params;
 
-
-try {
-    const { name, description, price, stock, category } = req.body;
-    const { id } = req.params;
-
-    const product = await Product.findById(id);
-    if (!product) {
-        return res.status(404).json({ message: "Product Not Found" });
-    }
-
-    if (name) product.name = name;
-    if (description) product.description = description;
-    if (price !== undefined) product.price = parseFloat(price);
-    if (stock !== undefined) product.stock = parseInt(stock);
-    if (category) product.category = category;
-
-    if (req.files && req.files.length > 0) {
-        if (req.files.length > 3) {
-            
-            req.files.forEach(file => { if (fs.existsSync(file.path)) fs.unlinkSync(file.path); });
-            return res.status(400).json({ message: "Maximum 3 images allowed" });
+        const product = await Product.findById(id);
+        if (!product) {
+            return res.status(404).json({ message: "Product Not Found" });
         }
 
-        const uploadPromises = req.files.map(async (file) => {
-            try {
-                const result = await cloudinary.uploader.upload(file.path, {
-                    folder: 'products'
-                });
-                
-                if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
-                return result;
-            } catch (err) {
-                if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
-                throw err;
-            }
-        });
-
-        const uploadResults = await Promise.all(uploadPromises);
         
-        product.images = uploadResults.map((result) => result.secure_url); 
+        if (name) product.name = name;
+        if (description) product.description = description;
+        if (price !== undefined) product.price = parseFloat(price);
+        if (stock !== undefined) product.stock = parseInt(stock, 10);
+        if (category) product.category = category;
+
+        
+        if (req.files && req.files.length > 0) {
+            if (req.files.length > 3) {
+                return res.status(400).json({ message: "Maximum 3 images allowed" });
+            }
+
+            const uploadPromises = req.files.map(async (file) => {
+                const base64Image = Buffer.from(file.buffer).toString("base64");
+                const dataURI = `data:${file.mimetype};base64,${base64Image}`;
+                const result = await cloudinary.uploader.upload(dataURI, {
+                    folder: "products",   
+                });
+                return result;
+            });
+
+            const uploadResults = await Promise.all(uploadPromises);
+            product.images = uploadResults.map((result) => result.secure_url);
+
+        } else if (existingImages) {
+        
+            product.images = Array.isArray(existingImages) ? existingImages : [existingImages];
+        } else {
+            
+            product.images = product.images || [];
+        }
+
+        await product.save();
+        res.status(200).json({ product });
+
+    } catch (error) {
+        
+        console.error("Error Updating Product", error);
+        res.status(500).json({ message: "Internal Server Error" });
     }
+};
 
-    await product.save();
-    res.status(200).json({ product });
-
-} catch (error) {
-    
-    if (req.files) {
-        req.files.forEach(file => { if (fs.existsSync(file.path)) fs.unlinkSync(file.path); });
-    }
-    console.error("Error Updating Product", error);
-    res.status(500).json({ message: "Internal Server Error" });
-}
-
-}
 
 export const getAllOrders = async (req, res) => {
     try {
@@ -152,7 +134,7 @@ export const updatedOrderStatus = async (req, res) => {
         const { orderId } = req.params
         const { status } = req.body
 
-        if (!["pending", "shipped", "delivered","cancelled"].includes(status)) {
+        if (!["pending", "shipped", "delivered", "cancelled"].includes(status)) {
             return res.status(400).json({ message: "Invalid status" })
         }
         const order = await Order.findById(orderId)
@@ -195,15 +177,15 @@ export const getDashboardStats = async (req, res) => {
     try {
         const [totalCustomers, totalOrders, totalProducts, revenueResult] = await Promise.all([
             // Only count users who have a 'customer' role (adjust based on your schema)
-            User.countDocuments({ role: "customer" }), 
-            
+            User.countDocuments({ role: "customer" }),
+
             Order.countDocuments(),
-            
+
             Product.countDocuments(),
-            
+
             Order.aggregate([
-                // Filter out pending, cancelled, or failed orders for accurate revenue
-                { $match: { status: "paid" } }, // Adjust string to match your Order status values
+
+                { $match: { status: "delivered" } },
                 {
                     $group: {
                         _id: null,

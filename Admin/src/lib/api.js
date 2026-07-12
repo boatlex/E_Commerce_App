@@ -8,13 +8,13 @@ export const productsApi = {
         return data
     },
 
-    createProducts: async (formDate) => {
-        const { data } = await axiosInstance.post("/admin/products", formDate)
+    createProducts: async (formData) => {
+        const { data } = await axiosInstance.post("/admin/products", formData)
         return data
     },
 
-    updateProduct: async ({ id, formDate }) => {
-        const { data } = await axiosInstance.put(`/admin/products/${id}`, formDate)
+    updateProduct: async ({ id, formData }) => {
+        const { data } = await axiosInstance.put(`/admin/products/${id}`, formData)
         return data
     },
 
