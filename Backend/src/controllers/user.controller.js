@@ -1,5 +1,6 @@
 import { clerkClient, getAuth } from "@clerk/express"
 import { User } from "../models/user.model.js"
+import { ENV } from "../config/env.js";
 
 export const syncUser = async (req, res) => {
     try {
@@ -16,6 +17,11 @@ export const syncUser = async (req, res) => {
 
         const clerkUser = await clerkClient.users.getUser(userId)
 
+           let asignedRole = "customer" 
+           
+           if(ENV.ADMIN_EMAIL === clerkUser.emailAddresses[0]?.emailAddress){
+            asignedRole = "admin"
+           }
 
         const fullName = `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim()
 
@@ -26,6 +32,7 @@ export const syncUser = async (req, res) => {
             imageUrl: clerkUser.imageUrl || "",
             addresses: [],
             wishList: [],
+            role:asignedRole,
         }
 
         // 6. Save the new user record
