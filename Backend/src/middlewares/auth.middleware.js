@@ -9,7 +9,8 @@ export const protectRoute =  async (req, res, next) => {
     const authState = getAuth(req)
     const clerkId = authState?.userId
     
-
+   console.log(clerkId)
+      
     if (!clerkId) {
       return res.status(401).json({ message: "Unauthorized - Invalid token" })
     }

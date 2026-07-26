@@ -20,6 +20,7 @@ const router = express.Router();
 // Apply global admin protection middleware
 router.use(protectRoute, adminOnly);
 
+
 // Product Management
 router.post("/products", upload.array("images", 3), createProduct);
 router.put("/products/:id", upload.array("images", 3), updateProduct);
