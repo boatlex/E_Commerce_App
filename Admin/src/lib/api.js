@@ -8,10 +8,21 @@ export const productsApi = {
         return data
     },
 
-    createProducts: async (formData) => {
-        const { data } = await axiosInstance.post("/admin/products", formData)
-        return data
-    },
+   createProducts: async (formData) => {
+    try {
+        const { data } = await axiosInstance.post("/admin/products", formData);
+        return data;
+    } catch (error) {
+        // 🚀 Extract the header from the server response and attach it to the error object
+        if (error.response && error.response.headers) {
+            error.cidError = error.response.headers['x-cid-error'];
+        }
+        
+        // Re-throw so TanStack Query knows the mutation failed
+        throw error;
+    }
+},
+
 
     updateProduct: async ({ id, formData }) => {
         const { data } = await axiosInstance.put(`/admin/products/${id}`, formData)
