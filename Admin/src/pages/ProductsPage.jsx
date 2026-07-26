@@ -35,6 +35,11 @@ const ProductsPage = () => {
     onSuccess: () => {
       closeModal()
       queryClient.invalidateQueries({ queryKey: ["products"] })
+    },
+
+    onError:(response)=>{
+      console.log( response.message),
+      console.log("This X-CID Error:", response.details.error)
     }
   })
 
