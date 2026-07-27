@@ -7,7 +7,7 @@ import { serve } from "inngest/express";
 import { ENV } from "./config/env.js";
 import { connectDB } from "./config/db.js";
 
-// 4. Custom routing tables (Imported LAST so they have access to fully parsed environment values)
+
 import adminRoutes from "./routes/admin.route.js";
 import userRoutes from "./routes/user.route.js";
 import orderRoutes from "./routes/order.route.js";
@@ -19,7 +19,7 @@ import cartRoutes from "./routes/cart.route.js";
 const app = express()
 
 app.use(cors({
-  origin: ENV.CLIENT_URL, // Replace with your exact Vite frontend URL
+  origin: ENV.CLIENT_URL, 
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "x-cid-error"], 
