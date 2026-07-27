@@ -37,9 +37,8 @@ const ProductsPage = () => {
       queryClient.invalidateQueries({ queryKey: ["products"] })
     },
 
-    onError:(response)=>{
-      console.log( response.message),
-      console.log("This CID Error:", response.cidError)
+    onError: (response) => {
+      console.log(response.message)
     }
   })
 
@@ -68,15 +67,15 @@ const ProductsPage = () => {
 
   const handleEdit = (product) => {
     setEditingProduct(product)
-    
-    
-  setFormData({
-    name: product.name ?? "",
-    category: product.category?? "", 
-    price: product.price?.toString()?? "", 
-    stock: product.stock?.toString()?? "", 
-    description: product.description?? "", 
-  })
+
+
+    setFormData({
+      name: product.name ?? "",
+      category: product.category ?? "",
+      price: product.price?.toString() ?? "",
+      stock: product.stock?.toString() ?? "",
+      description: product.description ?? "",
+    })
 
     setImagePreviews(product.images || [])
     setShowModal(true)
@@ -107,11 +106,11 @@ const ProductsPage = () => {
     formDataToSend.append("stock", formData.stock)
     formDataToSend.append("description", formData.description)
 
-     if (images.length > 0) {
-    images.forEach((image) => formDataToSend.append('images', image))
-  } else if (editingProduct && imagePreviews.length > 0) {
-    imagePreviews.forEach((url) => formDataToSend.append('existingImages', url))
-  }
+    if (images.length > 0) {
+      images.forEach((image) => formDataToSend.append('images', image))
+    } else if (editingProduct && imagePreviews.length > 0) {
+      imagePreviews.forEach((url) => formDataToSend.append('existingImages', url))
+    }
 
 
 
@@ -124,7 +123,7 @@ const ProductsPage = () => {
 
 
 
-    return (
+  return (
     <div className='space-y-6'>
       <div className='flex items-center justify-between'>
         <div>
@@ -334,8 +333,8 @@ const ProductsPage = () => {
               <button type="button" onClick={closeModal} className='btn btn-ghost'>
                 Cancel
               </button>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className='btn btn-primary'
                 disabled={createProductMutation.isPending || updateProductMutation.isPending}
               >
