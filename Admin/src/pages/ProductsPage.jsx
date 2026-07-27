@@ -39,7 +39,7 @@ const ProductsPage = () => {
 
     onError:(response)=>{
       console.log( response.message),
-      console.log("This X-CID Error:", response.details.error)
+      console.log("This CID Error:", response.cidError)
     }
   })
 
