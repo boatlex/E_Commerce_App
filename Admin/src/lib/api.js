@@ -52,3 +52,11 @@ export const statsApi ={
         return data
     }
 }
+
+export const customerApi = {
+    fetchAllCustomers: async () => {
+        const { data } = await axiosInstance.get("/admin/customers")
+        return data
+    }
+
+}
