@@ -216,10 +216,13 @@ export const updatedOrderStatus = async (req, res) => {
         if (status === "delivered" && !order.deliveredAt) {
             order.deliveredAt = new Date()
         }
+        if (status === "cancelled" && !order.cancelledAt) {
+            order.cancelledAt = new Date()
+        }
 
         await order.save()
 
-        res.status(200).json({ message: "Order Status Updated Successfully", order })
+        res.status(200).json({ message: "Order Status Updated Successfully", orders })
     } catch (error) {
         console.error("Error Updating Status", error)
         res.status(500).json({ message: "Internal Server Error" })
