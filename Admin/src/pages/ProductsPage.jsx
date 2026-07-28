@@ -51,6 +51,17 @@ const ProductsPage = () => {
     }
   })
 
+  const deleteProductMutation = useMutation({
+    mutationFn: productsApi.deleteProduct,
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] })
+    }
+  })
+
+
+
+
   const closeModal = () => {
     setShowModal(false)
     setEditingProduct(null)
@@ -85,6 +96,10 @@ const ProductsPage = () => {
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files)
     if (files.length > 3) return alert("Maximum 3 images allowed")
+
+    imagePreviews.forEach((url) => {
+      if (url.startsWith("blob:")) URL.revokeObjectURL(url)
+    })
 
     setImages(files)
     setImagePreviews(files.map((file) => URL.createObjectURL(file)))
@@ -186,8 +201,15 @@ const ProductsPage = () => {
                     </button>
                     <button
                       className='btn btn-square btn-ghost text-error'
+                      onClick={() => deleteProductMutation.mutate(product._id)}
+                      disabled={deleteProductMutation.isPending}
                     >
-                      <Trash2Icon className='w-5 h-5' />
+                      {deleteProductMutation.isPending &&
+                        deleteProductMutation.variables === product._id ? (
+                        <span className="loading loading-spinner"></span>
+                      ) : (
+                        <Trash2Icon className='w-5 h-5' />
+                      )}
                     </button>
                   </div>
                 </div>

@@ -20,6 +20,10 @@ export const productsApi = {
         const { data } = await axiosInstance.put(`/admin/products/${id}`, formData)
         return data
     },
+    deleteProduct: async (productId) => {
+        const { data } = await axiosInstance.delete(`/admin/products/${productId}`)
+        return data
+    },
 
 }
 
