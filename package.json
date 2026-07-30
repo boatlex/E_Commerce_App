@@ -8,7 +8,7 @@
   },
 "scripts": {
     "build": "npm install --prefix Backend && npm install --prefix Admin && npm run build --prefix Admin",
-    "start": "node Backend/src/server.js"
+    "start": "npm run start --prefix Backend"
 },
 
 
@@ -19,7 +19,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module",
+  "type": "commonjs",
   "bugs": {
     "url": "https://github.com/boatlex/E_Commerce_App/issues"
   },
