@@ -3,7 +3,6 @@ import cors from "cors";
 import path from "path";
 import { clerkMiddleware} from '@clerk/express';
 import { serve } from "inngest/express";
-//import { fileURLToPath } from 'url';
 
 
 import { ENV } from "./config/env.js";
@@ -59,9 +58,6 @@ if (ENV.NODE_ENV === "production") {
         res.sendFile(path.join(__dirname, "../Admin", "dist", "index.html"))
     })
 }
-
-
-
 
 const connectServer = async () => {
     try {
