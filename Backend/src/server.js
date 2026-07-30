@@ -3,6 +3,8 @@ import cors from "cors";
 import path from "path";
 import { clerkMiddleware} from '@clerk/express';
 import { serve } from "inngest/express";
+import { fileURLToPath } from 'url';
+
 
 import { ENV } from "./config/env.js";
 import { connectDB } from "./config/db.js";
@@ -28,8 +30,10 @@ app.use(cors({
 
 
 
-const __dirname = path.resolve()
+//const __dirname = path.resolve()
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const PORT = ENV.PORT || 3000 
 
 app.use(express.json())
@@ -50,13 +54,24 @@ app.use("/api/reviews", reviewRoutes)
 app.use("/api/products", productRoutes)
 app.use("/api/carts", cartRoutes)
 
+
+// if (ENV.NODE_ENV === "production") {
+//     app.use(express.static(path.join(__dirname, "Admin", "dist")))
+    
+//     app.get("*", (req, res) => {
+//         res.sendFile(path.join(__dirname, "Admin", "dist", "index.html"))
+//     })
+// }
+
 if (ENV.NODE_ENV === "production") {
-    app.use(express.static(path.join(__dirname, "Admin", "dist")))
+    // Note the ".." additions which step out of 'src' back into the true project root
+    app.use(express.static(path.join(__dirname, "..", "Admin", "dist")))
     
     app.get("*", (req, res) => {
-        res.sendFile(path.join(__dirname, "Admin", "dist", "index.html"))
+        res.sendFile(path.join(__dirname, "..", "Admin", "dist", "index.html"))
     })
 }
+
 const connectServer = async () => {
     try {
         await connectDB()
