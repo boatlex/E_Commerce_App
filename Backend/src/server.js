@@ -64,7 +64,6 @@ app.use("/api/carts", cartRoutes)
 // }
 
 if (ENV.NODE_ENV === "production") {
-    // Note the ".." additions which step out of 'src' back into the true project root
     app.use(express.static(path.join(__dirname, "..", "Admin", "dist")))
     
     app.get("*", (req, res) => {
