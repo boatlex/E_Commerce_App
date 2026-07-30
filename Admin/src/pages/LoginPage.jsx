@@ -1,4 +1,4 @@
-// import { SignedIn, SignedOut, SignInButton, UserButton, useAuth } from '@clerk/clerk-react'
+import { SignedIn, SignedOut, SignInButton, UserButton, useAuth } from '@clerk/clerk-react'
 
 function LoginPage() {
   const { isLoaded } = useAuth()
