@@ -53,10 +53,10 @@ app.use("/api/carts", cartRoutes)
 
 
 if (ENV.NODE_ENV === "production") {
-    app.use(express.static(path.join(__dirname, "Admin", "dist")))
+    app.use(express.static(path.join(__dirname, "../Admin/dist")))
     
-    app.get("*", (req, res) => {
-        res.sendFile(path.join(__dirname, "Admin", "dist", "index.html"))
+    app.get("/{*any}", (req, res) => {
+        res.sendFile(path.join(__dirname, "../Admin", "dist", "index.html"))
     })
 }
 
