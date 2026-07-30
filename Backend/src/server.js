@@ -3,7 +3,7 @@ import cors from "cors";
 import path from "path";
 import { clerkMiddleware} from '@clerk/express';
 import { serve } from "inngest/express";
-import { fileURLToPath } from 'url';
+//import { fileURLToPath } from 'url';
 
 
 import { ENV } from "./config/env.js";
@@ -30,10 +30,7 @@ app.use(cors({
 
 
 
-//const __dirname = path.resolve()
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = path.resolve()
 const PORT = ENV.PORT || 3000 
 
 app.use(express.json())
@@ -55,21 +52,15 @@ app.use("/api/products", productRoutes)
 app.use("/api/carts", cartRoutes)
 
 
-// if (ENV.NODE_ENV === "production") {
-//     app.use(express.static(path.join(__dirname, "Admin", "dist")))
-    
-//     app.get("*", (req, res) => {
-//         res.sendFile(path.join(__dirname, "Admin", "dist", "index.html"))
-//     })
-// }
 if (ENV.NODE_ENV === "production") {
-    // Since we start from the root folder, we go straight into Admin/dist
-    app.use(express.static(path.join(__dirname, "..", "..", "Admin", "dist")))
+    app.use(express.static(path.join(__dirname, "Admin", "dist")))
     
     app.get("*", (req, res) => {
-        res.sendFile(path.join(__dirname, "..", "..", "Admin", "dist", "index.html"))
+        res.sendFile(path.join(__dirname, "Admin", "dist", "index.html"))
     })
 }
+
+
 
 
 const connectServer = async () => {
