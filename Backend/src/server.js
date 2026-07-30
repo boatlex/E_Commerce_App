@@ -62,14 +62,15 @@ app.use("/api/carts", cartRoutes)
 //         res.sendFile(path.join(__dirname, "Admin", "dist", "index.html"))
 //     })
 // }
-
 if (ENV.NODE_ENV === "production") {
-    app.use(express.static(path.join(__dirname, "..", "Admin", "dist")))
+    // Since we start from the root folder, we go straight into Admin/dist
+    app.use(express.static(path.join(__dirname, "..", "..", "Admin", "dist")))
     
     app.get("*", (req, res) => {
-        res.sendFile(path.join(__dirname, "..", "Admin", "dist", "index.html"))
+        res.sendFile(path.join(__dirname, "..", "..", "Admin", "dist", "index.html"))
     })
 }
+
 
 const connectServer = async () => {
     try {
