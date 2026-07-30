@@ -6,7 +6,7 @@ function LoginPage() {
   if (!isLoaded) return <div>Checking authorization...</div>
 
   return (
-    <div>
+    <div  className='h-screen flex justify-center items-center'>
       <h1>Home Page</h1>
       <SignedOut><SignInButton /></SignedOut>
       <SignedIn>
