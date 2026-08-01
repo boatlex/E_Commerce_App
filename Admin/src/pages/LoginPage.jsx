@@ -8,7 +8,6 @@ function LoginPage() {
    >Checking authorization...</div>
 
   return (
-    // flex-col stops elements from squashing horizontally on the same line
     <div className="h-screen w-screen bg-gray-50 flex flex-col justify-center items-center gap-6 p-4">
       
       <SignedOut>
