@@ -12,7 +12,7 @@
 //       <Text className="text-red-400">Edit app/index.tsx to edit this screen.</Text>
 //     </View>
 //   );
-//}
+// }
 
 // import { useAuth } from '@clerk/expo'
 // import { useHostedAuth } from '@clerk/expo/hosted-auth'
