@@ -19,9 +19,7 @@ const AuthScreen = () => {
           onPress={() => handleSocialAuth("oauth_google")}
           disabled={isAnyLoading}
           style={{
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.1,
-            elevation: 2,
+            boxShadow: '0px 2px 3.84px rgba(0, 0, 0, 0.25)'
           }}
         >
           {loadingStrategy==="oauth_google"? (
@@ -42,9 +40,7 @@ const AuthScreen = () => {
           onPress={() => handleSocialAuth("oauth_apple")}
           disabled={isAnyLoading}
           style={{
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.1,
-            elevation: 2,
+           boxShadow: '0px 2px 3.84px rgba(0, 0, 0, 0.25)'
           }}
         >
           {loadingStrategy==="oauth_apple"? (
