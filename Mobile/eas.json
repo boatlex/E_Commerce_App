@@ -6,7 +6,11 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "NPM_CONFIG_LEGACY_PEER_DEPS": "true",
+        "EAS_BUILD_SKIP_LOCKFILE_CHECK": "1"
+      }
     },
     "preview": {
       "distribution": "internal"
@@ -19,3 +23,4 @@
     "production": {}
   }
 }
+
