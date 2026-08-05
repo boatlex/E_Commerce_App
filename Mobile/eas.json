@@ -7,6 +7,9 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
+      "cache": {
+        "key": "v1-disable-new-arch-cache-fix"
+      },
       "env": {
         "NPM_CONFIG_LEGACY_PEER_DEPS": "true",
         "EAS_BUILD_SKIP_LOCKFILE_CHECK": "1"
@@ -23,4 +26,3 @@
     "production": {}
   }
 }
-
