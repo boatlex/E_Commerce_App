@@ -8,7 +8,7 @@
       "developmentClient": true,
       "distribution": "internal",
       "cache": {
-        "key": "v1-disable-new-arch-cache-fix"
+        "key": "v3-clean-cng-build"
       },
       "env": {
         "NPM_CONFIG_LEGACY_PEER_DEPS": "true",
