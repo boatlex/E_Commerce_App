@@ -8,7 +8,7 @@
       "developmentClient": true,
       "distribution": "internal",
       "cache": {
-        "key": "v4-fixed-reanimated-three"
+         "key": "v5-fabric-alignment-fix"
       },
       "env": {
         "NPM_CONFIG_LEGACY_PEER_DEPS": "true",
