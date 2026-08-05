@@ -50,8 +50,7 @@
           "project": "react-nativ-e-cmo",
           "organization": "boateng-wq"
         }
-      ],
-      "@sentry/react-native"
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
