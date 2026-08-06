@@ -7,9 +7,7 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "config": {
-        "node": "22.5.1"
-      },
+      "node": "22.5.1",
       "env": {
         "EAS_BUILD_SKIP_LOCKFILE_CHECK": "1"
       }
