@@ -107,8 +107,6 @@ const ShopScreen = () => {
           </ScrollView>
         </View>
 
-
-        <Button title='Try!' onPress={() => { Sentry.captureException(new Error('First error')) }} />
         <View className='px-6 mb-6'>
           <View className='flex-row items-center justify-between mb-4'>
             <Text className='text-text-primary text-lg font-bold'>Products</Text>
