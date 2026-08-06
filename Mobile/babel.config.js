@@ -3,10 +3,12 @@ module.exports = function (api) {
   return {
     presets: [
       ["babel-preset-expo", { jsxImportSource: "nativewind" }],
-      "nativewind/babel",
+      "nativewind/babel", // Keep this inside presets to bypass the validation bug
     ],
   };
 };
+
+
 
 
 
@@ -22,6 +24,7 @@ module.exports = function (api) {
 //     ],
 //   };
 // };
+
 // module.exports = function (api) {
 //   api.cache(true);
 //   return {
