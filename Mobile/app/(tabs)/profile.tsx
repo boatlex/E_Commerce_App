@@ -9,7 +9,7 @@ import SafeScreen from '../components/SafeScreen'
 const Menu_Items = [
   { id: 1, icon: "person-outline", title: "Edit Profile", color: "#3B82F6", action: "/profile" },
   { id: 2, icon: "list-outline", title: "Order Product", color: "#10B981", action: "/orders" },
-  { id: 3, icon: "location-outline", title: "Addresses", color: "#F59E08", action: "/address" },
+  { id: 3, icon: "location-outline", title: "Addresses", color: "#F59E08", action: "/addresses" },
   { id: 4, icon: "heart-outline", title: "Wish List", color: "#3B82F6", action: "/wishlist" }
 ] as const
 
@@ -19,7 +19,7 @@ const ProfileScreen = () => {
 
   const handleMenuPress = (action: (typeof Menu_Items)[number]['action']) => {
     if (action === "/profile") return
-    //router.push(action)
+    router.push(action)
   }
 
   return (
@@ -51,7 +51,8 @@ const ProfileScreen = () => {
 
               <View className='flex-1 ml-4' >
                 <Text className='text-text-primary text-2xl font-bold mb-1'>{user?.lastName}</Text>
-                <Text className='text-text-secondary text-sm'>{user?.emailAddresses[0].emailAddress}</Text>
+                <Text className='text-text-secondary text-sm'>{user?.emailAddresses[0]?.emailAddress ||
+                 "No User Email" }</Text>
 
               </View>
             </View>
@@ -102,7 +103,7 @@ const ProfileScreen = () => {
           <TouchableOpacity
             className='flex-row items-center justify-between py-2'
             activeOpacity={0.7}
-          //onPress={()=>router.push("/privacy-security")}
+          onPress={()=>router.push("/privacy-security")}
           >
             <View className='flex-row items-center'>
               <Ionicons name='shield-checkmark-outline' size={22} color={"#FFFFFF"} />

@@ -9,7 +9,7 @@ const useWishList = () => {
 
 const api = useApi()
  
- const {data:wishList, isLoading, isError}= useQuery({
+ const {data:wishList, isLoading, isError, refetch}= useQuery({
  queryKey:['wishlist'],
  queryFn: async()=>{
   const {data} = await api.get<{wishList:Product[]}>("/users/wishList")
@@ -57,6 +57,7 @@ const togglleWishList =(productId:string)=>{
     isError,
     isLoading,
     togglleWishList,
+    refetch,
     addToWishListMutation:addToWishListMutation.mutate,
     removefromWishListMutation:removefromWishListMutation.mutate,
     isInWishList,
