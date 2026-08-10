@@ -70,7 +70,7 @@ const WishListScreen = () => {
     <SafeScreen>
       {/* Header */}
 
-      <View className='px-6 pb-5 border-b bg-surface items-center justify-between flex-row'>
+      <View className='px-6 pb-5 pt-2 border-b bg-surface items-center justify-between flex-row'>
         <TouchableOpacity
           className='mr-4'
           onPress={() => router.back()}
@@ -155,7 +155,7 @@ const WishListScreen = () => {
                   </View>
                   {item.stock > 0 && (
                     <TouchableOpacity
-                      className='bg-primary/20 self-start px-3 py-5 items-center mb-3 ml-20 rounded-full'
+                      className='bg-primary/20 self-start px-6 py-5 items-center mb-3 ml-20 rounded-full'
                       onPress={() => handleAddToCart(item._id, item.name)}
                       disabled={isThisItemAdding}
                     >
