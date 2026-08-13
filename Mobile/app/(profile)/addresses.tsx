@@ -50,20 +50,28 @@ const AddressesScreen = () => {
   }
 
   const handleEditAddress = (address: Address) => {
-   
+
     setShowAddressForm(true)
     setEdittingAddressId(address._id)
+
+    const rawZip = address.zipCode !== undefined ? address.zipCode : address.zipCode;
+    const rawPhone = address.phoneNumber !== undefined ? address.phoneNumber : address.phoneNumber;
+
+
     setAddressForm({
-      label: address.label,
-      fullName: address.fullName,
-      streetAddress: address.streetAddress,
-      city: address.city,
-      state: address.state,
-      zipCode: address.zipCode ? String(address.zipCode) : "",
-      phoneNumber: address.phoneNumber,
-      isDefault: address.isDefault
+      label: address.label || "",
+      fullName: address.fullName || "",
+      streetAddress: address.streetAddress || "",
+      city: address.city || "",
+      state: address.state || "",
+
+      // Replace the zipCode assignment line with this:
+      zipCode: rawZip != null ? String(rawZip).padStart(4, '0') : "",
+      phoneNumber: rawPhone != null ? String(rawPhone) : "",
+      isDefault: !!address.isDefault
     })
   }
+
 
   const handleDeleteAddress = (addressId: string, label: string) => {
     Alert.alert(" Delete Address", `Are you sure you want to delete this ${label}`, [
@@ -76,7 +84,7 @@ const AddressesScreen = () => {
   }
 
   const handleSaveteAddress = () => {
-
+    
     if (
       !addressForm.label ||
       !addressForm.fullName ||
@@ -84,49 +92,51 @@ const AddressesScreen = () => {
       !addressForm.city ||
       !addressForm.state ||
       !addressForm.zipCode ||
-      !addressForm.phoneNumber 
-      
-    ){Alert.alert("Error","Please fill in all fields ")
-       return }
+      !addressForm.phoneNumber
 
-       if(edittingAddressId){
-          updateAddress(
-            {
-            addressId:edittingAddressId,
-            addressData:addressForm
+    ) {
+      Alert.alert("Error", "Please fill in all fields ")
+      return
+    }
+
+    if (edittingAddressId) {
+      updateAddress(
+        {
+          addressId: edittingAddressId,
+          addressData: addressForm
+        },
+        {
+          onSuccess: () => {
+            setShowAddressForm(false)
+            setEdittingAddressId(null),
+              Alert.alert("Success", "Address updated successfully")
           },
-          {
-            onSuccess:()=>{
-              setShowAddressForm(false)
-               setEdittingAddressId(null),
-             Alert.alert("Success", "Address updated successfully")
-            },
-            
-           onError:(error:any)=>{
-             Alert.alert("Error",error?.response?.data?.error ||"Failed to update address")
-           }
-          
-          },
-          )
-       }else{
-         addAddress(addressForm, {
-          onSuccess:()=>{
-              setShowAddressForm(false)
-             Alert.alert("Success", "Address added successfully")
-            },
 
-             onError:(error:any)=>{
-             Alert.alert("Error",error?.response?.data?.error ||"Failed to add address")
-           }
-         })
-       }
+          onError: (error: any) => {
+            Alert.alert("Error", error?.response?.data?.error || "Failed to update address")
+          }
 
-   }
+        },
+      )
+    } else {
+      addAddress(addressForm, {
+        onSuccess: () => {
+          setShowAddressForm(false)
+          Alert.alert("Success", "Address added successfully")
+        },
+
+        onError: (error: any) => {
+          Alert.alert("Error", error?.response?.data?.error || "Failed to add address")
+        }
+      })
+    }
+
+  }
 
   const handleCloseAddressForm = () => {
     setShowAddressForm(false)
     setEdittingAddressId(null)
-   }
+  }
 
   if (isError) {
     return (
@@ -171,51 +181,51 @@ const AddressesScreen = () => {
         </View>
 
       ) : (
-         <ScrollView 
-           className='flex-1'
-           contentContainerStyle={{paddingBottom:100}}
-           showsVerticalScrollIndicator={false}
-         >
-         <View className='px-6 py-4'>
-          {addresses.map((address)=>{
+        <ScrollView
+          className='flex-1'
+          contentContainerStyle={{ paddingBottom: 100 }}
+          showsVerticalScrollIndicator={false}
+        >
+          <View className='px-6 py-4'>
+            {addresses.map((address) => {
 
-            return(
-                 <AddressCard
-             key={address._id}
-             address={address}
-             onEdit={handleEditAddress}
-             onDelete={handleDeleteAddress}
-             isUpdatingAddress={isUpdatingAddress}
-             isDeletingAddress={isDeletingingAddress}
-            />
-            )
-          })}
-           
-           <TouchableOpacity
-             className='bg-primary rounded-2xl py-4 items-center mt2'
-             activeOpacity={0.8}
-             onPress={handleAddAddress}
-           >
-           <View className='flex-row items-center'>
-            <Ionicons name='add-circle-outline' size={24} color={"#121212"}/>
-             <Text
-              className='text-background font-bold text-base ml-2'
-             >Add Address</Text>
-           </View>
-           </TouchableOpacity>
-         </View>
-         </ScrollView>
+              return (
+                <AddressCard
+                  key={address._id}
+                  address={address}
+                  onEdit={handleEditAddress}
+                  onDelete={handleDeleteAddress}
+                  isUpdatingAddress={isUpdatingAddress}
+                  isDeletingAddress={isDeletingingAddress}
+                />
+              )
+            })}
+
+            <TouchableOpacity
+              className='bg-primary rounded-2xl py-4 items-center mt2'
+              activeOpacity={0.8}
+              onPress={handleAddAddress}
+            >
+              <View className='flex-row items-center'>
+                <Ionicons name='add-circle-outline' size={24} color={"#121212"} />
+                <Text
+                  className='text-background font-bold text-base ml-2'
+                >Add Address</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
       )}
 
       <AddressFormModal
-       visible={showAddressForm}
-       isEditing={!!edittingAddressId}
-       addressForm={addressForm}
-       isAddingAddress={isAddingAddress}
-       isUpdatingAddress={isUpdatingAddress}
-       onClose={handleCloseAddressForm}
-       onSave={handleSaveteAddress}
-       onFormChange={setAddressForm}
+        visible={showAddressForm}
+        isEditing={!!edittingAddressId}
+        addressForm={addressForm}
+        isAddingAddress={isAddingAddress}
+        isUpdatingAddress={isUpdatingAddress}
+        onClose={handleCloseAddressForm}
+        onSave={handleSaveteAddress}
+        onFormChange={setAddressForm}
       />
     </SafeScreen>
   )
