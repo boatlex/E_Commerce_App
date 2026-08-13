@@ -1,4 +1,4 @@
-import { View, Text, Modal, TouchableOpacity, ScrollView, TextInput, Switch, ActivityIndicator } from 'react-native'
+import { View, Text, Modal, TouchableOpacity, ScrollView, TextInput, Switch, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import SafeScreen from './SafeScreen'
 import { Ionicons } from '@expo/vector-icons'
@@ -43,6 +43,11 @@ const AddressFormModal = ({
             transparent
             onRequestClose={onClose}
         >
+
+            <KeyboardAvoidingView
+             behavior={Platform.OS ==="ios"?"padding":"height"}
+             className='flex-1'
+            >
             <SafeScreen>
                 {/* Header */}
                 <View className='px-5 py-5 border-b border-surface flex-row items-center justify-between'>
@@ -174,7 +179,8 @@ const AddressFormModal = ({
                         </TouchableOpacity>
                     </View>
                 </ScrollView>
-            </SafeScreen>
+             </SafeScreen>
+             </KeyboardAvoidingView>
         </Modal>
     )
 }
