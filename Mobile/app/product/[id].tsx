@@ -13,9 +13,9 @@ import { Image } from 'expo-image'
 
 const { width } = Dimensions.get("window")
 const ProductDetailScreen = () => {
-  const { id } = useLocalSearchParams()
+  const { id } = useLocalSearchParams<{id:string}>()
 
-  const { data: product, isError, isLoading } = useProduct(id as string)
+  const { data: product, isError, isLoading } = useProduct(id)
   const { addToCart, isAddingToCart } = useCart()
   const { isInWishList, togglleWishList, isAddingToWishList, isRemovingFromWishList } = useWishList()
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
