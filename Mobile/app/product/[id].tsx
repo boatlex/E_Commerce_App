@@ -85,7 +85,7 @@ const ProductDetailScreen = () => {
 
       <ScrollView
         className='flex-1'
-        contentContainerStyle={{ paddingBottom: 80 }}
+        contentContainerStyle={{ paddingBottom: 120 }}
         showsVerticalScrollIndicator={false}
       >
         {/* Image Galary */}
@@ -196,8 +196,8 @@ const ProductDetailScreen = () => {
       </ScrollView>
 
       {/* Bottom Action Bar */}
-      <View className='absolute bottom-0 right-0 left-0 bg-background/95
-                   backdrop-blur-xl border-t border-surface px-6 py-4 pb-8'>
+      <View className='absolute bottom-0 right-0 left-0 bg-background/20
+                   backdrop-blur-xl border-t border-surface px-6 py-4 pb-8 mb-8'>
         <View className='flex-row items-center gap-3'>
            <View className='flex-1'>
              <Text className='text-text-secondary text-sm mb-1'>Total Price</Text>
@@ -209,12 +209,17 @@ const ProductDetailScreen = () => {
             items-center ${!inStock ? "bg-surface":"bg-primary"}`}
             onPress={handleAddToCart}
             activeOpacity={0.8}
-            disabled={!inStock || isAddingToCart}
+            disabled={isAddingThisItem}
            >
-             {isAddingToCart ? (
+             {isAddingThisItem ? (
               <ActivityIndicator size={"small"} color={"#121212"}/>
              ):(
-              <Ionicons name='cart' size={24}color={inStock? "#666":"#121212"}/>
+              <>
+               <Ionicons name='cart' size={24}color={inStock? "#666":"#121212"}/>
+               <Text className={` font-bold text-lg ml-2 ${inStock ? "text-text-secondary":"text-background"}`}>
+                {!inStock?"Out of Stock":"Add to Cart"}</Text>
+              </>
+             
              )}
            </TouchableOpacity>
         </View>
