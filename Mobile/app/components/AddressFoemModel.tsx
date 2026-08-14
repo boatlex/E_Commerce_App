@@ -135,7 +135,10 @@ const AddressFormModal = ({
                                 value={addressForm.zipCode} // ✅ Hooked to local string state
                                 placeholder='e.g., 0000'
                                 placeholderTextColor={"#666"}
-                                onChangeText={(text) => onFormChange({ ...addressForm, zipCode: text })}
+                                onChangeText={(text) => {
+                                    const cleanText = text.replace(/[^0-9]/g,'')
+                                    onFormChange({ ...addressForm, zipCode: cleanText })
+                                }}
                                 keyboardType='number-pad'
                             />
                         </View>
@@ -148,7 +151,9 @@ const AddressFormModal = ({
                                 value={addressForm.phoneNumber}
                                 placeholder='e.g., 02010001000'
                                 placeholderTextColor={"#666"}
-                                onChangeText={(text) => {onFormChange({ ...addressForm, phoneNumber: text })
+                                onChangeText={(text) => {
+                                    const cleanText = text.replace(/[^0-9]/g,'')
+                                    onFormChange({ ...addressForm, phoneNumber: cleanText })
                                 }}
                                 keyboardType='phone-pad'
                             />
