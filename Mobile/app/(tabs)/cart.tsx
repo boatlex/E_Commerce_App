@@ -1,10 +1,16 @@
-import { Alert, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import SafeScreen from '../components/SafeScreen'
 import { WebView } from "react-native-webview"
 import useCart from '@/hooks/useCart'
 import { useAddresses } from '@/hooks/useAddresses'
 import { useApi } from '@/lib/api'
+import { Address } from '@/types'
+import ErrorUi from '../components/ErrorUi'
+import LoadingUi from '../components/LoadingUi'
+import { Ionicons } from '@expo/vector-icons'
+import { Image } from 'expo-image'
+import CartSummary from '../components/CartSummary'
 
 const CartScreen = () => {
   const api = useApi()
@@ -23,7 +29,7 @@ const CartScreen = () => {
     removeFromCart,
     updateQuantity,
   } = useCart()
-  const { addresses, } = useAddresses()
+  const { addresses} = useAddresses()
 
   const [paymentLoading, setPaymentLoading] = useState(false)
   const [checoutUrl, setCheckoutUrl] = useState(null)
@@ -58,7 +64,6 @@ const CartScreen = () => {
 
   const handleChekout = () => {
     if (cartItems.length === 0) return
-
     if (!addresses || addresses.length === 0) {
       Alert.alert("No Address", "Please provide shipping address before checking out",
         [{ text: "Ok" }])
@@ -68,6 +73,20 @@ const CartScreen = () => {
     setAddressModalVisible(true)
   }
 
+
+  const handleProceedWithPayment = (selectedAddress: Address) => { }
+
+  if (isError) {
+    return <ErrorUi />
+  }
+
+  if (isLoading) {
+    return <LoadingUi />
+  }
+
+  if (isLoading) {
+    return <EmptyUi />
+  }
 
   // const startPayment = async () => {
   //     setLoading(true);
@@ -123,10 +142,178 @@ const CartScreen = () => {
 
   return (
     <SafeScreen>
-      <Text className='text-white'>CartScreen</Text>
+      <Text className='px-6 pb-5 text-text-primary text-3xl font-bold tracking-tight'>Cart</Text>
+
+
+      <ScrollView
+        className='flex-1'
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 240 }}
+      >
+        <View className='px-6 space-y-4'>
+          {cartItems.map((item) => {
+
+
+            const isThisItemUpdating = isUpdatingQuantity?.productId === item.product._id;
+
+            const isThisMinusUpdating =
+              isThisItemUpdating && isUpdatingQuantity.quantity < item.quantity;
+
+            const isThisPlusUpdating =
+              isThisItemUpdating && isUpdatingQuantity.quantity > item.quantity;
+
+            const isItemRemoving = isRemovingFromCart !== null;
+            const isThisItemRemoving = isRemovingFromCart === item.product._id;;
+            //const isCartClearing = isClearingCart === item.product._id;
+            return (
+              <View key={item._id}
+                className='bg-surface rounded-2xl text-3xl  overflow-hidden mb-3'
+              >
+                <View className='p-4 flex-row'>
+                  {/* Image */}
+                  <View className='relative'>
+                    <Image
+                      source={item?.product?.images?.[0] || ""}
+                      className='rounded-2xl bg-background-lighter'
+                      style={{ width: 122, height: 112, borderRadius: 16 }}
+                      contentFit='cover'
+                    />
+                    <View className='absolute top-2 right-2 bg-primary rounded-full px-2 py-0.5'>
+                      <Text className='text-background text-sm font-bold'>{item.quantity}</Text>
+                    </View>
+                  </View>
+
+                  <View className='flex-1 ml-4 justify-between'>
+                    <View>
+                      <Text className='text-text-primary font-bold text-lg leading-tight'>
+                        {item.product.name}</Text>
+                      <View className='flex-row items-center mt-2 gap-6'>
+                        <Text className='text-primary font-bold text-2xl'>
+                          {(item.product.price * item.quantity).toFixed(2)}</Text>
+
+                        <Text className='text-text-secondary text-sm ml-2'>
+                          {item.product.price?.toFixed(2)} each</Text>
+
+                      </View>
+                    </View>
+
+                    <View className='flex-row items-center mt-3 gap-2'>
+                      <View className='flex-row '>
+                        <TouchableOpacity
+                          className='bg-primary/20
+                          rounded-full w-9 h-9 items-center justify-center'
+                          activeOpacity={0.7}
+                          onPress={() => handleQuantityChange(item.product._id, item.quantity, -1)}
+                          disabled={isThisItemUpdating || isThisItemRemoving}
+                        >
+                          {isThisMinusUpdating ? (
+                            <ActivityIndicator size={"small"} color={"#FFFFFF"} />
+                          ) : (
+                            <Ionicons name='remove' size={18} color={"#FFFFFF"} />
+                          )}
+                        </TouchableOpacity>
+
+                        <View className='mx-3 min-w-[32px] items-center'>
+                          <Text className='text-text-primary font-bold text-lg'>
+                            {item.quantity}</Text>
+                        </View>
+                        <TouchableOpacity
+                          className='bg-primary/20
+                          rounded-full w-9 h-9 items-center justify-center'
+                          activeOpacity={0.7}
+                          onPress={() => handleQuantityChange(item.product._id, item.quantity, 1)}
+                          disabled={isThisItemUpdating || isThisItemRemoving}
+                        >
+                          {isThisPlusUpdating ? (
+                            <ActivityIndicator size={"small"} color={"#FFFFFF"} />
+                          ) : (
+                            <Ionicons name='add' size={18} color={"#FFFFFF"} />
+                          )}
+                        </TouchableOpacity>
+                      </View>
+
+                      <TouchableOpacity
+                        className=' mx-4 bg-red-500/10
+                          rounded-full w-9 h-9 items-center justify-center'
+                        activeOpacity={0.7}
+                        onPress={() => handleRemoveItem(item.product._id, item.product.name)}
+                        disabled={isItemRemoving}
+                      >
+                        {isThisItemRemoving ? (
+                          <ActivityIndicator size={"small"} color={"#FFFFFF"} />
+                        ) : (
+                          <Ionicons name='trash-outline' size={18} color={"#EF4444"} />
+                        )}
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            )
+          })}
+        </View>
+        <CartSummary
+          subTotal={subTotal}
+          shippingFee={shippingFee}
+          tax={tax}
+          total={total}
+        />
+      </ScrollView>
+
+      <View className='absolute bottom-0 right-0 left-0 
+       bg-background/95 backdrop-blur-xl border-t border-surface pt-4 pb-32 px-6  '>
+        {/* Quick stats */}
+        <View className='flex-row items-center justify-between mb-4'>
+          <View className='flex-row item-center'>
+            <Ionicons name='cart' size={20} color={"#1DB954"} />
+            <Text className='text-text-secondary ml-2'>
+              {cartItemCount} {cartItemCount === 1 ? "Item" : "Items"}</Text>
+          </View>
+          <View className='flex-row items-center'>
+            <Text className='text-text-primary font-bold text-xl'
+            >{total.toFixed(2)}</Text>
+          </View>
+        </View>
+
+        {/* checkout btn */}
+        <TouchableOpacity
+          className='bg-primary rounded-2xl overflow-hidden mb-6'
+          activeOpacity={0.8}
+          onPress={handleChekout}
+          disabled={paymentLoading}
+        >
+          <View className='py-5 flex-row items-center justify-center'>
+            {paymentLoading ? (
+              <ActivityIndicator size={"small"} color={"#121212"} />
+            ) : (
+              <>
+                <Text className='text-background font-bold text-lg mr-2'>Checkout</Text>
+                <Ionicons name='arrow-forward' size={20} color={"#121212"} />
+              </>
+
+            )}
+          </View>
+        </TouchableOpacity>
+      </View>
     </SafeScreen>
   )
 }
 
 export default CartScreen
 
+const EmptyUi = () => {
+  return (
+    <View className='flex-1 bg-background'>
+      <View className='px-6 pt-16 pb-5'>
+        <Text className='text-text-primary text-3xl font-bold tracking-tight'>Cart</Text>
+      </View>
+      <View className='flex-1 items-center justify-center px-6'>
+        <Ionicons name='cart-outline' size={80} color={"#666"} />
+        <Text className='text-text-primary text-xl font-semibold mt-4'>Your Cart is Empty</Text>
+        <Text className='text-text-secondary text-center mt-2'>
+          Add some products to get started</Text>
+      </View>
+    </View>
+  )
+
+}
