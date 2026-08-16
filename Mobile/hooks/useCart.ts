@@ -9,10 +9,10 @@ const useCart = () => {
 
    const api = useApi()
 
-   const { data: cart, isError, isLoading } = useQuery({
+   const { data:cart, isError, isLoading } = useQuery({
       queryKey: ['cart'],
       queryFn: async () => {
-         const { data } = await api.get<{ cart: Cart }>("/cart")
+         const { data } = await api.get<{ cart: Cart }>("/carts")
          return data.cart
       }
    })
@@ -81,7 +81,7 @@ const useCart = () => {
       isAddingToCart: addToCartMutation.isPending ? addToCartMutation.variables.productId : null,
       isRemovingFromCart: removeFromCartMutation.isPending ? removeFromCartMutation.variables: null,
       isClearingCart:clearCartMutation.isPending,
-      isUpdatingQuantity:updateCartQuantityMutation.isPending
+      isUpdatingQuantity:updateCartQuantityMutation.isPending?updateCartQuantityMutation.variables:null
    }
 }
 

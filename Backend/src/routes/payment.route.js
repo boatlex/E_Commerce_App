@@ -6,5 +6,5 @@ import { intializedPayment, validatedPayment } from '../controllers/payment.cont
 const router = express.Router()
 
  router.post("/initialized", protectRoute, intializedPayment)
- router.post("/validated", protectRoute, validatedPayment)
+ router.post("/validated", validatedPayment)
 export default router
