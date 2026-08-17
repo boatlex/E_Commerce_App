@@ -103,7 +103,7 @@ const CartScreen = () => {
     }
   }
 
-  // Pure state monitor for intercepting redirect events
+  
   const handleWebViewStateChange = (navState: any) => {
     const { url } = navState;
 
