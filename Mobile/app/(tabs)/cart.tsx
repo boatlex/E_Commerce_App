@@ -11,6 +11,7 @@ import LoadingUi from '../components/LoadingUi'
 import { Ionicons } from '@expo/vector-icons'
 import { Image } from 'expo-image'
 import CartSummary from '../components/CartSummary'
+import AddressSelectionModal from '../components/AddressSelectionModal'
 
 const CartScreen = () => {
   const api = useApi()
@@ -295,6 +296,13 @@ const CartScreen = () => {
           </View>
         </TouchableOpacity>
       </View>
+        {/* Address modal */}
+      <AddressSelectionModal
+      visible={addressModalVisible}
+      onClose={()=>setAddressModalVisible(false)}
+      onProceed={handleProceedWithPayment}
+      isProccessing={paymentLoading}
+      />
     </SafeScreen>
   )
 }
