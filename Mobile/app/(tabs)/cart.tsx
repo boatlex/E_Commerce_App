@@ -30,7 +30,7 @@ const CartScreen = () => {
     removeFromCart,
     updateQuantity,
   } = useCart()
-  const { addresses} = useAddresses()
+  const { addresses } = useAddresses()
 
   const [paymentLoading, setPaymentLoading] = useState(false)
   const [checoutUrl, setCheckoutUrl] = useState(null)
@@ -75,236 +75,298 @@ const CartScreen = () => {
   }
 
 
-  const handleProceedWithPayment = (selectedAddress: Address) => { }
+  const handleProceedWithPayment = async (selectedAddress: Address) => {
+    setAddressModalVisible(false)
 
-  if (isError) {
-    return <ErrorUi />
+    try {
+      setPaymentLoading(true)
+      // Initialize payment with cart items and shipping address
+
+      const response = await api.post("/payment/initialized", {
+        cartItems,
+        shippingAddress: {
+          fullName: selectedAddress.fullName,
+          streetAddress: selectedAddress.streetAddress,
+          city: selectedAddress.city,
+          state: selectedAddress.state,
+          zipCode: selectedAddress.zipCode,
+          phoneNumber: selectedAddress.phoneNumber,
+        }
+      })
+
+      if (response.data.status) {
+        setCheckoutUrl(response.data.data.authorization_url);
+      }
+      
+     // clearCart()
+
+    } catch (error) {
+      console.error('Payment initialization failed', error);
+      Alert.alert("Error", "Failed to Initialize Payment")
+    } finally {
+      setPaymentLoading(false)
+    }
   }
 
-  if (isLoading) {
-    return <LoadingUi />
+
+  const handleWebViewStateChange = (navState) => {
+    const { url } = navState;
+
+    if (url.includes('payment-success') || url.includes('checkout/thankyou')) {
+      setCheckoutUrl(null);
+      alert('Payment initialization finished! Processing your order.');
+    }
+    
+
+    if(paymentLoading){
+       return <View className='items-center justify-center'><ActivityIndicator size="large" /></View>;
+    }
+    
+  if (checkoutUrl) {
+
+    return (
+      <SafeAreaView style={styles.container}>
+        <WebView
+          source={{ uri: checkoutUrl }}
+          onNavigationStateChange={handleWebViewStateChange}
+          javaScriptEnabled={true}
+          domStorageEnabled={true}
+        />
+      </SafeAreaView>
+    );
   }
-
-  if (isLoading) {
-    return <EmptyUi />
-  }
-
-  // const startPayment = async () => {
-  //     setLoading(true);
-  //     try {
-  //       const response = await axios.post(BACKEND_URL, {
-  //         email: 'user@example.com',
-  //         amount: 50, // Value in GHS or NGN
-  //       });
-
-  //       if (response.data.status) {
-  //         setCheckoutUrl(response.data.data.authorization_url);
-  //       }
-  //     } catch (error) {
-  //       console.error('Payment initialization failed', error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   // Monitor WebView navigation to detect completion or cancellation
-  //   const handleWebViewStateChange = (navState) => {
-  //     const { url } = navState;
-
-  //     if (url.includes('payment-success') || url.includes('checkout/thankyou')) {
-  //       setCheckoutUrl(null);
-  //       alert('Payment initialization finished! Processing your order.');
-  //     }
-  //   };
-
-  //   if (loading) {
-  //     return <View style={styles.center}><ActivityIndicator size="large" /></View>;
-  //   }
-
-  //   if (checkoutUrl) {
-  //     return (
-  //       <SafeAreaView style={styles.container}>
-  //         <WebView 
-  //           source={{ uri: checkoutUrl }} 
-  //           onNavigationStateChange={handleWebViewStateChange}
-  //           javaScriptEnabled={true}
-  //           domStorageEnabled={true}
-  //         />
-  //       </SafeAreaView>
-  //     );
-  //   }
-
-  //   return (
-  //     <View style={styles.center}>
-  //       <Button title="Pay Now" onPress={startPayment} />
-  //     </View>
-  //   );
-  // }
-
-  return (
-    <SafeScreen>
-      <Text className='px-6 pb-5 text-text-primary text-3xl font-bold tracking-tight'>Cart</Text>
+  };
 
 
-      <ScrollView
-        className='flex-1'
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 240 }}
-      >
-        <View className='px-6 space-y-4'>
-          {cartItems.map((item) => {
+
+if (isError) {
+  return <ErrorUi />
+}
+
+if (isLoading) {
+  return <LoadingUi />
+}
+
+if (isLoading) {
+  return <EmptyUi />
+}
+
+// const startPayment = async () => {
+//     setLoading(true);
+//     try {
+//       const response = await axios.post(BACKEND_URL, {
+//         email: 'user@example.com',
+//         amount: 50, // Value in GHS or NGN
+//       });
+
+//       if (response.data.status) {
+//         setCheckoutUrl(response.data.data.authorization_url);
+//       }
+//     } catch (error) {
+//       console.error('Payment initialization failed', error);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   // Monitor WebView navigation to detect completion or cancellation
+//   const handleWebViewStateChange = (navState) => {
+//     const { url } = navState;
+
+//     if (url.includes('payment-success') || url.includes('checkout/thankyou')) {
+//       setCheckoutUrl(null);
+//       alert('Payment initialization finished! Processing your order.');
+//     }
+//   };
+
+//   if (loading) {
+//     return <View style={styles.center}><ActivityIndicator size="large" /></View>;
+//   }
+
+// if (checkoutUrl) {
+//   return (
+//     <SafeAreaView style={styles.container}>
+//       <WebView 
+//         source={{ uri: checkoutUrl }} 
+//         onNavigationStateChange={handleWebViewStateChange}
+//         javaScriptEnabled={true}
+//         domStorageEnabled={true}
+//       />
+//     </SafeAreaView>
+//   );
+// }
+
+//   return (
+//     <View style={styles.center}>
+//       <Button title="Pay Now" onPress={startPayment} />
+//     </View>
+//   );
+// }
+
+return (
+  <SafeScreen>
+    <Text className='px-6 pb-5 text-text-primary text-3xl font-bold tracking-tight'>Cart</Text>
 
 
-            const isThisItemUpdating = isUpdatingQuantity?.productId === item.product._id;
+    <ScrollView
+      className='flex-1'
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ paddingBottom: 240 }}
+    >
+      <View className='px-6 space-y-4'>
+        {cartItems.map((item) => {
 
-            const isThisMinusUpdating =
-              isThisItemUpdating && isUpdatingQuantity.quantity < item.quantity;
 
-            const isThisPlusUpdating =
-              isThisItemUpdating && isUpdatingQuantity.quantity > item.quantity;
+          const isThisItemUpdating = isUpdatingQuantity?.productId === item.product._id;
 
-            const isItemRemoving = isRemovingFromCart !== null;
-            const isThisItemRemoving = isRemovingFromCart === item.product._id;;
-            //const isCartClearing = isClearingCart === item.product._id;
-            return (
-              <View key={item._id}
-                className='bg-surface rounded-2xl text-3xl  overflow-hidden mb-3'
-              >
-                <View className='p-4 flex-row'>
-                  {/* Image */}
-                  <View className='relative'>
-                    <Image
-                      source={item?.product?.images?.[0] || ""}
-                      className='rounded-2xl bg-background-lighter'
-                      style={{ width: 122, height: 112, borderRadius: 16 }}
-                      contentFit='cover'
-                    />
-                    <View className='absolute top-2 right-2 bg-primary rounded-full px-2 py-0.5'>
-                      <Text className='text-background text-sm font-bold'>{item.quantity}</Text>
+          const isThisMinusUpdating =
+            isThisItemUpdating && isUpdatingQuantity.quantity < item.quantity;
+
+          const isThisPlusUpdating =
+            isThisItemUpdating && isUpdatingQuantity.quantity > item.quantity;
+
+          const isItemRemoving = isRemovingFromCart !== null;
+          const isThisItemRemoving = isRemovingFromCart === item.product._id;;
+          //const isCartClearing = isClearingCart === item.product._id;
+          return (
+            <View key={item._id}
+              className='bg-surface rounded-2xl text-3xl  overflow-hidden mb-3'
+            >
+              <View className='p-4 flex-row'>
+                {/* Image */}
+                <View className='relative'>
+                  <Image
+                    source={item?.product?.images?.[0] || ""}
+                    className='rounded-2xl bg-background-lighter'
+                    style={{ width: 122, height: 112, borderRadius: 16 }}
+                    contentFit='cover'
+                  />
+                  <View className='absolute top-2 right-2 bg-primary rounded-full px-2 py-0.5'>
+                    <Text className='text-background text-sm font-bold'>{item.quantity}</Text>
+                  </View>
+                </View>
+
+                <View className='flex-1 ml-4 justify-between'>
+                  <View>
+                    <Text className='text-text-primary font-bold text-lg leading-tight'>
+                      {item.product.name}</Text>
+                    <View className='flex-row items-center mt-2 gap-6'>
+                      <Text className='text-primary font-bold text-2xl'>
+                        {(item.product.price * item.quantity).toFixed(2)}</Text>
+
+                      <Text className='text-text-secondary text-sm ml-2'>
+                        {item.product.price?.toFixed(2)} each</Text>
+
                     </View>
                   </View>
 
-                  <View className='flex-1 ml-4 justify-between'>
-                    <View>
-                      <Text className='text-text-primary font-bold text-lg leading-tight'>
-                        {item.product.name}</Text>
-                      <View className='flex-row items-center mt-2 gap-6'>
-                        <Text className='text-primary font-bold text-2xl'>
-                          {(item.product.price * item.quantity).toFixed(2)}</Text>
-
-                        <Text className='text-text-secondary text-sm ml-2'>
-                          {item.product.price?.toFixed(2)} each</Text>
-
-                      </View>
-                    </View>
-
-                    <View className='flex-row items-center mt-3 gap-2'>
-                      <View className='flex-row '>
-                        <TouchableOpacity
-                          className='bg-primary/20
-                          rounded-full w-9 h-9 items-center justify-center'
-                          activeOpacity={0.7}
-                          onPress={() => handleQuantityChange(item.product._id, item.quantity, -1)}
-                          disabled={isThisItemUpdating || isThisItemRemoving}
-                        >
-                          {isThisMinusUpdating ? (
-                            <ActivityIndicator size={"small"} color={"#FFFFFF"} />
-                          ) : (
-                            <Ionicons name='remove' size={18} color={"#FFFFFF"} />
-                          )}
-                        </TouchableOpacity>
-
-                        <View className='mx-3 min-w-[32px] items-center'>
-                          <Text className='text-text-primary font-bold text-lg'>
-                            {item.quantity}</Text>
-                        </View>
-                        <TouchableOpacity
-                          className='bg-primary/20
-                          rounded-full w-9 h-9 items-center justify-center'
-                          activeOpacity={0.7}
-                          onPress={() => handleQuantityChange(item.product._id, item.quantity, 1)}
-                          disabled={isThisItemUpdating || isThisItemRemoving}
-                        >
-                          {isThisPlusUpdating ? (
-                            <ActivityIndicator size={"small"} color={"#FFFFFF"} />
-                          ) : (
-                            <Ionicons name='add' size={18} color={"#FFFFFF"} />
-                          )}
-                        </TouchableOpacity>
-                      </View>
-
+                  <View className='flex-row items-center mt-3 gap-2'>
+                    <View className='flex-row '>
                       <TouchableOpacity
-                        className=' mx-4 bg-red-500/10
+                        className='bg-primary/20
                           rounded-full w-9 h-9 items-center justify-center'
                         activeOpacity={0.7}
-                        onPress={() => handleRemoveItem(item.product._id, item.product.name)}
-                        disabled={isItemRemoving}
+                        onPress={() => handleQuantityChange(item.product._id, item.quantity, -1)}
+                        disabled={isThisItemUpdating || isThisItemRemoving}
                       >
-                        {isThisItemRemoving ? (
+                        {isThisMinusUpdating ? (
                           <ActivityIndicator size={"small"} color={"#FFFFFF"} />
                         ) : (
-                          <Ionicons name='trash-outline' size={18} color={"#EF4444"} />
+                          <Ionicons name='remove' size={18} color={"#FFFFFF"} />
+                        )}
+                      </TouchableOpacity>
+
+                      <View className='mx-3 min-w-[32px] items-center'>
+                        <Text className='text-text-primary font-bold text-lg'>
+                          {item.quantity}</Text>
+                      </View>
+                      <TouchableOpacity
+                        className='bg-primary/20
+                          rounded-full w-9 h-9 items-center justify-center'
+                        activeOpacity={0.7}
+                        onPress={() => handleQuantityChange(item.product._id, item.quantity, 1)}
+                        disabled={isThisItemUpdating || isThisItemRemoving}
+                      >
+                        {isThisPlusUpdating ? (
+                          <ActivityIndicator size={"small"} color={"#FFFFFF"} />
+                        ) : (
+                          <Ionicons name='add' size={18} color={"#FFFFFF"} />
                         )}
                       </TouchableOpacity>
                     </View>
+
+                    <TouchableOpacity
+                      className=' mx-4 bg-red-500/10
+                          rounded-full w-9 h-9 items-center justify-center'
+                      activeOpacity={0.7}
+                      onPress={() => handleRemoveItem(item.product._id, item.product.name)}
+                      disabled={isItemRemoving}
+                    >
+                      {isThisItemRemoving ? (
+                        <ActivityIndicator size={"small"} color={"#FFFFFF"} />
+                      ) : (
+                        <Ionicons name='trash-outline' size={18} color={"#EF4444"} />
+                      )}
+                    </TouchableOpacity>
                   </View>
                 </View>
               </View>
-            )
-          })}
-        </View>
-        <CartSummary
-          subTotal={subTotal}
-          shippingFee={shippingFee}
-          tax={tax}
-          total={total}
-        />
-      </ScrollView>
-
-      <View className='absolute bottom-0 right-0 left-0 
-       bg-background/95 backdrop-blur-xl border-t border-surface pt-4 pb-32 px-6  '>
-        {/* Quick stats */}
-        <View className='flex-row items-center justify-between mb-4'>
-          <View className='flex-row item-center'>
-            <Ionicons name='cart' size={20} color={"#1DB954"} />
-            <Text className='text-text-secondary ml-2'>
-              {cartItemCount} {cartItemCount === 1 ? "Item" : "Items"}</Text>
-          </View>
-          <View className='flex-row items-center'>
-            <Text className='text-text-primary font-bold text-xl'
-            >{total.toFixed(2)}</Text>
-          </View>
-        </View>
-
-        {/* checkout btn */}
-        <TouchableOpacity
-          className='bg-primary rounded-2xl overflow-hidden mb-6'
-          activeOpacity={0.8}
-          onPress={handleChekout}
-          disabled={paymentLoading}
-        >
-          <View className='py-5 flex-row items-center justify-center'>
-            {paymentLoading ? (
-              <ActivityIndicator size={"small"} color={"#121212"} />
-            ) : (
-              <>
-                <Text className='text-background font-bold text-lg mr-2'>Checkout</Text>
-                <Ionicons name='arrow-forward' size={20} color={"#121212"} />
-              </>
-
-            )}
-          </View>
-        </TouchableOpacity>
+            </View>
+          )
+        })}
       </View>
-        {/* Address modal */}
-      <AddressSelectionModal
+      <CartSummary
+        subTotal={subTotal}
+        shippingFee={shippingFee}
+        tax={tax}
+        total={total}
+      />
+    </ScrollView>
+
+    <View className='absolute bottom-0 right-0 left-0 
+       bg-background/95 backdrop-blur-xl border-t border-surface pt-4 pb-32 px-6  '>
+      {/* Quick stats */}
+      <View className='flex-row items-center justify-between mb-4'>
+        <View className='flex-row item-center'>
+          <Ionicons name='cart' size={20} color={"#1DB954"} />
+          <Text className='text-text-secondary ml-2'>
+            {cartItemCount} {cartItemCount === 1 ? "Item" : "Items"}</Text>
+        </View>
+        <View className='flex-row items-center'>
+          <Text className='text-text-primary font-bold text-xl'
+          >{total.toFixed(2)}</Text>
+        </View>
+      </View>
+
+      {/* checkout btn */}
+      <TouchableOpacity
+        className='bg-primary rounded-2xl overflow-hidden mb-6'
+        activeOpacity={0.8}
+        onPress={handleChekout}
+        disabled={paymentLoading}
+      >
+        <View className='py-5 flex-row items-center justify-center'>
+          {paymentLoading ? (
+            <ActivityIndicator size={"small"} color={"#121212"} />
+          ) : (
+            <>
+              <Text className='text-background font-bold text-lg mr-2'>Checkout</Text>
+              <Ionicons name='arrow-forward' size={20} color={"#121212"} />
+            </>
+
+          )}
+        </View>
+      </TouchableOpacity>
+    </View>
+    {/* Address modal */}
+    <AddressSelectionModal
       visible={addressModalVisible}
-      onClose={()=>setAddressModalVisible(false)}
+      onClose={() => setAddressModalVisible(false)}
       onProceed={handleProceedWithPayment}
       isProccessing={paymentLoading}
-      />
-    </SafeScreen>
-  )
+    />
+  </SafeScreen>
+)
 }
 
 export default CartScreen
