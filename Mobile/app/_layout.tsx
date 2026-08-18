@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 import * as Sentry from '@sentry/react-native';
-import { ClerkProvider } from '@clerk/expo'
+import { ClerkProvider, ClerkLoaded } from '@clerk/expo' // 1. Added ClerkLoaded
 import { tokenCache } from '@clerk/expo/token-cache'
 import "../global.css"
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query"
@@ -47,9 +47,8 @@ const queryClient = new QueryClient({
   }),
 })
 
- function RootLayout() {
+function RootLayout() {
   const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!
-  
   const paystackPublicKey = process.env.EXPO_PUBLIC_PAYSTACK_PUBLIC_KEY!
 
   if (!publishableKey) {
@@ -62,19 +61,20 @@ const queryClient = new QueryClient({
 
   return (
     <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
-      <QueryClientProvider client={queryClient}>
-        
-        {/* 3. Wrap your Stack Navigator with PaystackProvider */}
-         <PaystackProvider publicKey={paystackPublicKey}>
-         <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(auth)" />
-            <Stack.Screen name="(tabs)" />
-          </Stack>
-        </PaystackProvider> 
-        
-      </QueryClientProvider>
+      {/* 2. Wrap routes inside ClerkLoaded to block rendering until Clerk finishes initializing */}
+      <ClerkLoaded>
+        <QueryClientProvider client={queryClient}>
+          {/* 3. Wrap your Stack Navigator with PaystackProvider */}
+          <PaystackProvider publicKey={paystackPublicKey}>
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="(auth)" />
+              <Stack.Screen name="(tabs)" />
+            </Stack>
+          </PaystackProvider> 
+        </QueryClientProvider>
+      </ClerkLoaded>
     </ClerkProvider>
   )
-};
+}
 
 export default Sentry.wrap(RootLayout)

@@ -13,6 +13,7 @@ import { Image } from 'expo-image'
 import CartSummary from '../components/CartSummary'
 import AddressSelectionModal from '../components/AddressSelectionModal'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import EmptyUi from '../components/EmptyUi'
 
 const CartScreen = () => {
   const api = useApi()
@@ -124,7 +125,8 @@ const CartScreen = () => {
 
   if (isError) return <ErrorUi />
   if (isLoading) return <LoadingUi />
-  if (cartItems.length === 0) return <EmptyUi />
+  if (cartItems.length === 0) return <EmptyUi 
+  title='Cart' subMessage='Your Cart is Empty' emptyMessage='Add some products to get started'  />
 
 
 
@@ -324,19 +326,3 @@ export default CartScreen
 
 
 
-const EmptyUi = () => {
-  return (
-    <View className='flex-1 bg-background'>
-      <View className='px-6 pt-16 pb-5'>
-        <Text className='text-text-primary text-3xl font-bold tracking-tight'>Cart</Text>
-      </View>
-      <View className='flex-1 items-center justify-center px-6'>
-        <Ionicons name='cart-outline' size={80} color={"#666"} />
-        <Text className='text-text-primary text-xl font-semibold mt-4'>Your Cart is Empty</Text>
-        <Text className='text-text-secondary text-center mt-2'>
-          Add some products to get started</Text>
-      </View>
-    </View>
-  )
-
-}
