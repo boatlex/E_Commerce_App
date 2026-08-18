@@ -321,6 +321,9 @@
 
 // export default CartScreen
 
+
+
+
 import { ActivityIndicator, Alert, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import SafeScreen from '../components/SafeScreen'
@@ -405,7 +408,7 @@ const CartScreen = () => {
     const { url } = navState;
     if (url.includes('payment-success') || url.includes('checkout/thankyou') || url.includes('callback')) {
       setCheckoutUrl(null);
-      clearCart();
+      clearCart(); 
       Alert.alert('Success!', 'Payment verified! Processing your order.');
     }
     if (url.includes('cancel') || url.includes('close')) {
@@ -491,7 +494,13 @@ const CartScreen = () => {
         </View>
       </ScrollView>
 
-      <CartSummary subTotal={subTotal} shippingFee={shippingFee} tax={tax} total={total} />
+      {/* Your exact original CartSummary component */}
+      <CartSummary
+        subTotal={subTotal}
+        shippingFee={shippingFee}
+        tax={tax}
+        total={total}
+      />
 
       <View className="px-6 pb-6 bg-background">
         <TouchableOpacity className="bg-primary h-14 rounded-2xl items-center justify-center flex-row" activeOpacity={0.8} onPress={handleChekout} disabled={paymentLoading}>
@@ -499,7 +508,7 @@ const CartScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Address modal */}
+      {/* Your exact original AddressSelectionModal component */}
       <AddressSelectionModal
         visible={addressModalVisible}
         onClose={() => setAddressModalVisible(false)}
