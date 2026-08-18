@@ -5,7 +5,7 @@ import { tokenCache } from '@clerk/expo/token-cache'
 import "../global.css"
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
-import { PaystackProvider } from 'react-native-paystack-webview'; 
+//import { PaystackProvider } from 'react-native-paystack-webview'; 
 
 Sentry.init({
   dsn: 'https://03bd89b0a4bda41f343190d378360739@o4511813997494272.ingest.us.sentry.io/4511847818133504',
@@ -65,12 +65,12 @@ function RootLayout() {
       <ClerkLoaded>
         <QueryClientProvider client={queryClient}>
           {/* 3. Wrap your Stack Navigator with PaystackProvider */}
-          <PaystackProvider publicKey={paystackPublicKey}>
+          
             <Stack screenOptions={{ headerShown: false }}>
               <Stack.Screen name="(auth)" />
               <Stack.Screen name="(tabs)" />
             </Stack>
-          </PaystackProvider> 
+          
         </QueryClientProvider>
       </ClerkLoaded>
     </ClerkProvider>
