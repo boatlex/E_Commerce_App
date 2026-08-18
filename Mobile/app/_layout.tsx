@@ -4,7 +4,7 @@ import { ClerkProvider } from '@clerk/expo'
 import { tokenCache } from '@clerk/expo/token-cache'
 import "../global.css"
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query"
-// 1. Import PaystackProvider from the package
+
 import { PaystackProvider } from 'react-native-paystack-webview'; 
 
 Sentry.init({
@@ -49,7 +49,7 @@ const queryClient = new QueryClient({
 
  function RootLayout() {
   const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!
-  // 2. Safely read your Paystack public key from environment variables
+  
   const paystackPublicKey = process.env.EXPO_PUBLIC_PAYSTACK_PUBLIC_KEY!
 
   if (!publishableKey) {
@@ -65,13 +65,13 @@ const queryClient = new QueryClient({
       <QueryClientProvider client={queryClient}>
         
         {/* 3. Wrap your Stack Navigator with PaystackProvider */}
-        <PaystackProvider publicKey={paystackPublicKey}>
-          <Stack screenOptions={{ headerShown: false }}>
+         <PaystackProvider publicKey={paystackPublicKey}>
+         <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(auth)" />
             <Stack.Screen name="(tabs)" />
           </Stack>
-        </PaystackProvider>
-
+        </PaystackProvider> 
+        
       </QueryClientProvider>
     </ClerkProvider>
   )

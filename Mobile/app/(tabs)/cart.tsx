@@ -140,23 +140,13 @@ const CartScreen = () => {
       >
         <View className='px-6 space-y-4'>
           {cartItems.map((item) => {
-
-
             const isThisItemUpdating = isUpdatingQuantity?.productId === item.product._id;
+            const isThisMinusUpdating = isThisItemUpdating && isUpdatingQuantity.quantity < item.quantity;
+            const isThisPlusUpdating = isThisItemUpdating && isUpdatingQuantity.quantity > item.quantity;
+            const isThisItemRemoving = isRemovingFromCart === item.product._id;
 
-            const isThisMinusUpdating =
-              isThisItemUpdating && isUpdatingQuantity.quantity < item.quantity;
-
-            const isThisPlusUpdating =
-              isThisItemUpdating && isUpdatingQuantity.quantity > item.quantity;
-
-            const isItemRemoving = isRemovingFromCart !== null;
-            const isThisItemRemoving = isRemovingFromCart === item.product._id;;
-            //const isCartClearing = isClearingCart === item.product._id;
             return (
-              <View key={item._id}
-                className='bg-surface rounded-2xl text-3xl  overflow-hidden mb-3'
-              >
+              <View key={item._id} className='bg-surface rounded-2xl text-3xl overflow-hidden mb-3'>
                 <View className='p-4 flex-row'>
                   {/* Image */}
                   <View className='relative'>
@@ -174,22 +164,23 @@ const CartScreen = () => {
                   <View className='flex-1 ml-4 justify-between'>
                     <View>
                       <Text className='text-text-primary font-bold text-lg leading-tight'>
-                        {item.product.name}</Text>
+                        {item.product.name}
+                      </Text>
                       <View className='flex-row items-center mt-2 gap-6'>
                         <Text className='text-primary font-bold text-2xl'>
-                          {(item.product.price * item.quantity).toFixed(2)}</Text>
-
+                          {(item.product.price * item.quantity).toFixed(2)}
+                        </Text>
                         <Text className='text-text-secondary text-sm ml-2'>
-                          {item.product.price?.toFixed(2)} each</Text>
-
+                          {item.product.price?.toFixed(2)} each
+                        </Text>
                       </View>
                     </View>
 
-                    <View className='flex-row items-center mt-3 gap-2'>
-                      <View className='flex-row '>
+                    <View className='flex-row items-center mt-3 justify-between'>
+                      {/* Quantity Controls */}
+                      <View className='flex-row items-center'>
                         <TouchableOpacity
-                          className='bg-primary/20
-                          rounded-full w-9 h-9 items-center justify-center'
+                          className='bg-primary/20 rounded-full w-9 h-9 items-center justify-center'
                           activeOpacity={0.7}
                           onPress={() => handleQuantityChange(item.product._id, item.quantity, -1)}
                           disabled={isThisItemUpdating || isThisItemRemoving}
@@ -202,12 +193,12 @@ const CartScreen = () => {
                         </TouchableOpacity>
 
                         <View className='mx-3 min-w-[32px] items-center'>
-                          <Text className='text-text-primary font-bold text-lg'>
-                            {item.quantity}</Text>
+                          <Text className='text-text-primary font-bold text-lg'>{item.quantity}</Text>
                         </View>
+
+                        {/* 2. Fixed cut off syntax error below */}
                         <TouchableOpacity
-                          className='bg-primary/20
-                          rounded-full w-9 h-9 items-center justify-center'
+                          className='bg-primary/20 rounded-full w-9 h-9 items-center justify-center'
                           activeOpacity={0.7}
                           onPress={() => handleQuantityChange(item.product._id, item.quantity, 1)}
                           disabled={isThisItemUpdating || isThisItemRemoving}
@@ -220,17 +211,15 @@ const CartScreen = () => {
                         </TouchableOpacity>
                       </View>
 
-                      <TouchableOpacity
-                        className=' mx-4 bg-red-500/10
-                          rounded-full w-9 h-9 items-center justify-center'
-                        activeOpacity={0.7}
+                      {/* Trash/Remove Button */}
+                      <TouchableOpacity 
                         onPress={() => handleRemoveItem(item.product._id, item.product.name)}
-                        disabled={isItemRemoving}
+                        disabled={isThisItemRemoving}
                       >
                         {isThisItemRemoving ? (
-                          <ActivityIndicator size={"small"} color={"#FFFFFF"} />
+                          <ActivityIndicator size="small" color="#FF3B30" />
                         ) : (
-                          <Ionicons name='trash-outline' size={18} color={"#EF4444"} />
+                          <Ionicons name="trash-outline" size={22} color="#FF3B30" />
                         )}
                       </TouchableOpacity>
                     </View>
@@ -240,13 +229,14 @@ const CartScreen = () => {
             )
           })}
         </View>
-        <CartSummary
+      </ScrollView>
+
+       <CartSummary
           subTotal={subTotal}
           shippingFee={shippingFee}
           tax={tax}
           total={total}
         />
-      </ScrollView>
 
       <View className='absolute bottom-0 right-0 left-0 
        bg-background/95 backdrop-blur-xl border-t border-surface pt-4 pb-32 px-6  '>
@@ -293,22 +283,22 @@ const CartScreen = () => {
 
 
          {/* NEW: Paystack Native Webview Overlay Modal */}
-      <Modal
+        <Modal
         visible={checkoutUrl !== null}
         animationType="slide"
         onRequestClose={() => setCheckoutUrl(null)}
       >
         <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
           {/* Header to manually abort transaction context inside modal */}
-          <View >
+           <View >
             <TouchableOpacity onPress={() => setCheckoutUrl(null)} >
               <Ionicons name="close" size={26} color="#000" />
             </TouchableOpacity>
             <Text >Secure Payment</Text>
             <View style={{ width: 26 }} />
-          </View>
+          </View> 
 
-          <WebView
+           <WebView
             source={{ uri: checkoutUrl ?? "" }}
             onNavigationStateChange={handleWebViewStateChange}
             javaScriptEnabled={true}
@@ -318,14 +308,21 @@ const CartScreen = () => {
             renderLoading={() => (
               <ActivityIndicator size="large" color="#3bb75e" style={StyleSheet.absoluteFillObject} />
             )}
-          />
+          /> 
         </SafeAreaView>
-      </Modal>
+      </Modal>  
+
+
     </SafeScreen>
   )
 }
 
 export default CartScreen
+
+
+
+
+
 
 const EmptyUi = () => {
   return (
