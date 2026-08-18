@@ -20,16 +20,16 @@ const TabsLayout = () => {
             tabBarInactiveTintColor: "#B3B3B3",
             tabBarStyle: {
                 position: "absolute",
-                backgroundColor: "rgba(0,0,0,0.05)", // Soft fallback transparency link
+                backgroundColor: "rgba(0, 0, 0, 0.7)", // Slightly darker fallback for perfect contrast
                 borderTopWidth: 0,
                 height: 55 + insets.bottom,
                 paddingTop: 10,
-                marginHorizontal: 30, // Reduced from 60 to prevent squishing tab icons
+                marginHorizontal: 30, 
                 marginBottom: insets.bottom || 16,
                 borderRadius: 24,
                 overflow: "hidden",
             },
-            // ✅ FIXED: Changed to an implicit arrow return so BlurView actually mounts
+            // ✅ FIXED: Correct React Element assignment for tabBarBackground
             tabBarBackground: () => (
                 <BlurView 
                     intensity={80} 
@@ -49,6 +49,7 @@ const TabsLayout = () => {
                     tabBarIcon: ({ color, size }) => <Ionicons name='grid' size={size} color={color} />
                 }}
             />
+            {/* ✅ Registered to map perfectly with cart.tsx file */}
             <Tabs.Screen
                 name='cart'
                 options={{
@@ -67,4 +68,4 @@ const TabsLayout = () => {
     )
 }
 
-export default TabsLayout
+export default TabsLayout;
