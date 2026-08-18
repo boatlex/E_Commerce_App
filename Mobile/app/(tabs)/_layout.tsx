@@ -4,8 +4,7 @@ import { Redirect, Tabs } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import { useAuth } from '@clerk/expo'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import {BlurView} from "expo-blur"
-
+import { BlurView } from "expo-blur"
 
 const TabsLayout = () => {
     const { isSignedIn, isLoaded } = useAuth()
@@ -16,37 +15,38 @@ const TabsLayout = () => {
 
     return (
         <Tabs screenOptions={{
-            headerShown:false,
-            tabBarActiveTintColor:"#1DB954",
-            tabBarInactiveTintColor:"#B3B3B3",
-            tabBarStyle:{
-                position:"absolute",
-                backgroundColor:"transparent",
-                borderTopWidth:0,
-                height: 45 + insets.bottom,
-                paddingTop:10,
-                marginHorizontal:60,
-                marginBottom:insets.bottom,
-                borderRadius:24,
-                overflow:"hidden",
-                
+            headerShown: false,
+            tabBarActiveTintColor: "#1DB954",
+            tabBarInactiveTintColor: "#B3B3B3",
+            tabBarStyle: {
+                position: "absolute",
+                backgroundColor: "rgba(0,0,0,0.05)", // Soft fallback transparency link
+                borderTopWidth: 0,
+                height: 55 + insets.bottom,
+                paddingTop: 10,
+                marginHorizontal: 30, // Reduced from 60 to prevent squishing tab icons
+                marginBottom: insets.bottom || 16,
+                borderRadius: 24,
+                overflow: "hidden",
             },
-            tabBarBackground:()=>{
-                <BlurView intensity={80} tint='dark' style={
-                    StyleSheet.absoluteFill
-                }/>
-            },
-            tabBarLabelStyle:{
-                fontSize:14,
-                fontWeight:600,
+            // ✅ FIXED: Changed to an implicit arrow return so BlurView actually mounts
+            tabBarBackground: () => (
+                <BlurView 
+                    intensity={80} 
+                    tint='dark' 
+                    style={StyleSheet.absoluteFill}
+                />
+            ),
+            tabBarLabelStyle: {
+                fontSize: 12,
+                fontWeight: '600',
             }
-
         }}>
             <Tabs.Screen
                 name='index'
                 options={{
                     title: "Shop",
-                    tabBarIcon: ({ color, size }) => <Ionicons name='grid' size={size} color={color}  />
+                    tabBarIcon: ({ color, size }) => <Ionicons name='grid' size={size} color={color} />
                 }}
             />
             <Tabs.Screen
@@ -60,7 +60,7 @@ const TabsLayout = () => {
                 name='profile'
                 options={{
                     title: "Profile",
-                    tabBarIcon: ({ color, size }) => <Ionicons name='person' size={size} color={color}  />
+                    tabBarIcon: ({ color, size }) => <Ionicons name='person' size={size} color={color} />
                 }}
             />
         </Tabs>
