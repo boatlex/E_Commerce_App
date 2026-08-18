@@ -47,7 +47,7 @@ const queryClient = new QueryClient({
   }),
 })
 
-export default Sentry.wrap(function RootLayout() {
+ function RootLayout() {
   const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!
   // 2. Safely read your Paystack public key from environment variables
   const paystackPublicKey = process.env.EXPO_PUBLIC_PAYSTACK_PUBLIC_KEY!
@@ -75,5 +75,6 @@ export default Sentry.wrap(function RootLayout() {
       </QueryClientProvider>
     </ClerkProvider>
   )
-});
+};
 
+export default Sentry.wrap(RootLayout)
