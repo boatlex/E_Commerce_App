@@ -1,4 +1,4 @@
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Alert, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import SafeScreen from '../components/SafeScreen'
 import { WebView } from "react-native-webview"
@@ -12,6 +12,7 @@ import { Ionicons } from '@expo/vector-icons'
 import { Image } from 'expo-image'
 import CartSummary from '../components/CartSummary'
 import AddressSelectionModal from '../components/AddressSelectionModal'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 const CartScreen = () => {
   const api = useApi()
@@ -30,10 +31,10 @@ const CartScreen = () => {
     removeFromCart,
     updateQuantity,
   } = useCart()
-  const { addresses} = useAddresses()
+  const { addresses } = useAddresses()
 
   const [paymentLoading, setPaymentLoading] = useState(false)
-  const [checoutUrl, setCheckoutUrl] = useState(null)
+  const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null)
   const [addressModalVisible, setAddressModalVisible] = useState(false)
 
 
@@ -74,72 +75,58 @@ const CartScreen = () => {
     setAddressModalVisible(true)
   }
 
+  const handleProceedWithPayment = async (selectedAddress: Address) => {
+    setAddressModalVisible(false)
 
-  const handleProceedWithPayment = (selectedAddress: Address) => { }
+    try {
+      setPaymentLoading(true)
+      const response = await api.post("/payment/initialized", {
+        cartItems,
+        shippingAddress: {
+          fullName: selectedAddress.fullName,
+          streetAddress: selectedAddress.streetAddress,
+          city: selectedAddress.city,
+          state: selectedAddress.state,
+          zipCode: selectedAddress.zipCode,
+          phoneNumber: selectedAddress.phoneNumber,
+        }
+      })
 
-  if (isError) {
-    return <ErrorUi />
+      if (response.data.status) {
+        setCheckoutUrl(response.data.data.authorization_url);
+      }
+    } catch (error) {
+      console.error('Payment initialization failed', error);
+      Alert.alert("Error", "Failed to Initialize Payment")
+    } finally {
+      setPaymentLoading(false)
+    }
   }
 
-  if (isLoading) {
-    return <LoadingUi />
-  }
+  
+  const handleWebViewStateChange = (navState: any) => {
+    const { url } = navState;
 
-  if (isLoading) {
-    return <EmptyUi />
-  }
+    // Check if redirect matches successful endpoint configured on Paystack dashboard
+    if (url.includes('payment-success') || url.includes('checkout/thankyou') || url.includes('callback')) {
+      setCheckoutUrl(null);
+      clearCart(); // Safely clear out locally completed items
+      Alert.alert('Success!', 'Payment verified! Processing your order.');
+    }
 
-  // const startPayment = async () => {
-  //     setLoading(true);
-  //     try {
-  //       const response = await axios.post(BACKEND_URL, {
-  //         email: 'user@example.com',
-  //         amount: 50, // Value in GHS or NGN
-  //       });
+    // Dismiss screen window cleanly if user cancels within checkout interface
+    if (url.includes('cancel') || url.includes('close')) {
+      setCheckoutUrl(null);
+      Alert.alert('Payment Cancelled', 'You aborted the transactional loop.');
+    }
+  };
 
-  //       if (response.data.status) {
-  //         setCheckoutUrl(response.data.data.authorization_url);
-  //       }
-  //     } catch (error) {
-  //       console.error('Payment initialization failed', error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
 
-  //   // Monitor WebView navigation to detect completion or cancellation
-  //   const handleWebViewStateChange = (navState) => {
-  //     const { url } = navState;
+  if (isError) return <ErrorUi />
+  if (isLoading) return <LoadingUi />
+  if (cartItems.length === 0) return <EmptyUi />
 
-  //     if (url.includes('payment-success') || url.includes('checkout/thankyou')) {
-  //       setCheckoutUrl(null);
-  //       alert('Payment initialization finished! Processing your order.');
-  //     }
-  //   };
 
-  //   if (loading) {
-  //     return <View style={styles.center}><ActivityIndicator size="large" /></View>;
-  //   }
-
-  //   if (checkoutUrl) {
-  //     return (
-  //       <SafeAreaView style={styles.container}>
-  //         <WebView 
-  //           source={{ uri: checkoutUrl }} 
-  //           onNavigationStateChange={handleWebViewStateChange}
-  //           javaScriptEnabled={true}
-  //           domStorageEnabled={true}
-  //         />
-  //       </SafeAreaView>
-  //     );
-  //   }
-
-  //   return (
-  //     <View style={styles.center}>
-  //       <Button title="Pay Now" onPress={startPayment} />
-  //     </View>
-  //   );
-  // }
 
   return (
     <SafeScreen>
@@ -296,13 +283,44 @@ const CartScreen = () => {
           </View>
         </TouchableOpacity>
       </View>
-        {/* Address modal */}
+      {/* Address modal */}
       <AddressSelectionModal
-      visible={addressModalVisible}
-      onClose={()=>setAddressModalVisible(false)}
-      onProceed={handleProceedWithPayment}
-      isProccessing={paymentLoading}
+        visible={addressModalVisible}
+        onClose={() => setAddressModalVisible(false)}
+        onProceed={handleProceedWithPayment}
+        isProccessing={paymentLoading}
       />
+
+
+         {/* NEW: Paystack Native Webview Overlay Modal */}
+      <Modal
+        visible={checkoutUrl !== null}
+        animationType="slide"
+        onRequestClose={() => setCheckoutUrl(null)}
+      >
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+          {/* Header to manually abort transaction context inside modal */}
+          <View >
+            <TouchableOpacity onPress={() => setCheckoutUrl(null)} >
+              <Ionicons name="close" size={26} color="#000" />
+            </TouchableOpacity>
+            <Text >Secure Payment</Text>
+            <View style={{ width: 26 }} />
+          </View>
+
+          <WebView
+            source={{ uri: checkoutUrl ?? "" }}
+            onNavigationStateChange={handleWebViewStateChange}
+            javaScriptEnabled={true}
+            domStorageEnabled={true}
+            style={{ flex: 1 }}
+            startInLoadingState={true}
+            renderLoading={() => (
+              <ActivityIndicator size="large" color="#3bb75e" style={StyleSheet.absoluteFillObject} />
+            )}
+          />
+        </SafeAreaView>
+      </Modal>
     </SafeScreen>
   )
 }
