@@ -17,27 +17,12 @@
 
 // const CartScreen = () => {
 //   const api = useApi()
-//   const {
-//     addToCart,
-//     isAddingToCart,
-//     cart,
-//     cartItemCount,
-//     cartTotal,
-//     clearCart,
-//     isClearingCart,
-//     isError,
-//     isLoading,
-//     isRemovingFromCart,
-//     isUpdatingQuantity,
-//     removeFromCart,
-//     updateQuantity,
-//   } = useCart()
+//   const { cart, cartTotal, clearCart, isError, isLoading, isRemovingFromCart, isUpdatingQuantity, removeFromCart, updateQuantity } = useCart()
 //   const { addresses } = useAddresses()
 
 //   const [paymentLoading, setPaymentLoading] = useState(false)
 //   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null)
 //   const [addressModalVisible, setAddressModalVisible] = useState(false)
-
 
 //   const cartItems = cart?.items || []
 //   const subTotal = cartTotal
@@ -45,40 +30,30 @@
 //   const tax = subTotal * 0.08
 //   const total = subTotal + shippingFee + tax
 
-
-
 //   const handleQuantityChange = (productId: string, currentQty: number, change: number) => {
-
 //     const newQuantity = currentQty + change
 //     if (newQuantity < 1) return
-
 //     updateQuantity({ productId, quantity: newQuantity })
 //   }
 
 //   const handleRemoveItem = (productId: string, productName: string) => {
-//     Alert.alert("Remove Item", ` Remove ${productName} from cart?`, [
+//     Alert.alert("Remove Item", `Remove ${productName} from cart?`, [
 //       { text: "Cancel", style: "cancel" },
-//       {
-//         text: "Remove", style: "destructive",
-//         onPress: () => removeFromCart(productId)
-//       }
+//       { text: "Remove", style: "destructive", onPress: () => removeFromCart(productId) }
 //     ])
 //   }
 
 //   const handleChekout = () => {
 //     if (cartItems.length === 0) return
 //     if (!addresses || addresses.length === 0) {
-//       Alert.alert("No Address", "Please provide shipping address before checking out",
-//         [{ text: "Ok" }])
+//       Alert.alert("No Address", "Please provide shipping address before checking out", [{ text: "Ok" }])
 //       return
 //     }
-
 //     setAddressModalVisible(true)
 //   }
 
 //   const handleProceedWithPayment = async (selectedAddress: Address) => {
 //     setAddressModalVisible(false)
-
 //     try {
 //       setPaymentLoading(true)
 //       const response = await api.post("/payment/initialized", {
@@ -92,7 +67,6 @@
 //           phoneNumber: selectedAddress.phoneNumber,
 //         }
 //       })
-
 //       if (response.data.status) {
 //         setCheckoutUrl(response.data.data.authorization_url);
 //       }
@@ -104,42 +78,28 @@
 //     }
 //   }
 
-
 //   const handleWebViewStateChange = (navState: any) => {
 //     const { url } = navState;
-
-//     // Check if redirect matches successful endpoint configured on Paystack dashboard
 //     if (url.includes('payment-success') || url.includes('checkout/thankyou') || url.includes('callback')) {
 //       setCheckoutUrl(null);
-//       clearCart(); // Safely clear out locally completed items
+//       clearCart(); 
 //       Alert.alert('Success!', 'Payment verified! Processing your order.');
 //     }
-
-//     // Dismiss screen window cleanly if user cancels within checkout interface
 //     if (url.includes('cancel') || url.includes('close')) {
 //       setCheckoutUrl(null);
 //       Alert.alert('Payment Cancelled', 'You aborted the transactional loop.');
 //     }
 //   };
 
-
 //   if (isError) return <ErrorUi />
 //   if (isLoading) return <LoadingUi />
-//   if (cartItems.length === 0) return <EmptyUi 
-//   title='Cart' subMessage='Your Cart is Empty' emptyMessage='Add some products to get started'  />
-
-
+//   if (cartItems.length === 0) return <EmptyUi title='Cart' subMessage='Your Cart is Empty' emptyMessage='Add some products to get started' />
 
 //   return (
 //     <SafeScreen>
 //       <Text className='px-6 pb-5 text-text-primary text-3xl font-bold tracking-tight'>Cart</Text>
 
-
-//       <ScrollView
-//         className='flex-1'
-//         showsVerticalScrollIndicator={false}
-//         contentContainerStyle={{ paddingBottom: 240 }}
-//       >
+//       <ScrollView className='flex-1' showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 240 }}>
 //         <View className='px-6 space-y-4'>
 //           {cartItems.map((item) => {
 //             const isThisItemUpdating = isUpdatingQuantity?.productId === item.product._id;
@@ -150,7 +110,6 @@
 //             return (
 //               <View key={item._id} className='bg-surface rounded-2xl text-3xl overflow-hidden mb-3'>
 //                 <View className='p-4 flex-row'>
-//                   {/* Image */}
 //                   <View className='relative'>
 //                     <Image
 //                       source={item?.product?.images?.[0] || ""}
@@ -165,64 +124,40 @@
 
 //                   <View className='flex-1 ml-4 justify-between'>
 //                     <View>
-//                       <Text className='text-text-primary font-bold text-lg leading-tight'>
-//                         {item.product.name}
-//                       </Text>
+//                       <Text className='text-text-primary font-bold text-lg leading-tight'>{item.product.name}</Text>
 //                       <View className='flex-row items-center mt-2 gap-6'>
-//                         <Text className='text-primary font-bold text-2xl'>
-//                           {(item.product.price * item.quantity).toFixed(2)}
-//                         </Text>
-//                         <Text className='text-text-secondary text-sm ml-2'>
-//                           {item.product.price?.toFixed(2)} each
-//                         </Text>
+//                         <Text className='text-primary font-bold text-2xl'>{(item.product.price * item.quantity).toFixed(2)}</Text>
+//                         <Text className='text-text-secondary text-sm ml-2'>{item.product.price?.toFixed(2)} each</Text>
 //                       </View>
 //                     </View>
 
 //                     <View className='flex-row items-center mt-3 justify-between'>
-//                       {/* Quantity Controls */}
-//                       <View className='flex-row items-center'>
+//                       <View className='flex-row '>
 //                         <TouchableOpacity
 //                           className='bg-primary/20 rounded-full w-9 h-9 items-center justify-center'
 //                           activeOpacity={0.7}
 //                           onPress={() => handleQuantityChange(item.product._id, item.quantity, -1)}
 //                           disabled={isThisItemUpdating || isThisItemRemoving}
 //                         >
-//                           {isThisMinusUpdating ? (
-//                             <ActivityIndicator size={"small"} color={"#FFFFFF"} />
-//                           ) : (
-//                             <Ionicons name='remove' size={18} color={"#FFFFFF"} />
-//                           )}
+//                           {isThisMinusUpdating ? <ActivityIndicator size="small" color="#FFFFFF" /> : <Ionicons name='remove' size={18} color="#FFFFFF" />}
 //                         </TouchableOpacity>
 
 //                         <View className='mx-3 min-w-[32px] items-center'>
 //                           <Text className='text-text-primary font-bold text-lg'>{item.quantity}</Text>
 //                         </View>
 
-//                         {/* 2. Fixed cut off syntax error below */}
 //                         <TouchableOpacity
 //                           className='bg-primary/20 rounded-full w-9 h-9 items-center justify-center'
 //                           activeOpacity={0.7}
 //                           onPress={() => handleQuantityChange(item.product._id, item.quantity, 1)}
 //                           disabled={isThisItemUpdating || isThisItemRemoving}
 //                         >
-//                           {isThisPlusUpdating ? (
-//                             <ActivityIndicator size={"small"} color={"#FFFFFF"} />
-//                           ) : (
-//                             <Ionicons name='add' size={18} color={"#FFFFFF"} />
-//                           )}
+//                           {isThisPlusUpdating ? <ActivityIndicator size="small" color="#FFFFFF" /> : <Ionicons name='add' size={18} color="#FFFFFF" />}
 //                         </TouchableOpacity>
 //                       </View>
 
-//                       {/* Trash/Remove Button */}
-//                       <TouchableOpacity 
-//                         onPress={() => handleRemoveItem(item.product._id, item.product.name)}
-//                         disabled={isThisItemRemoving}
-//                       >
-//                         {isThisItemRemoving ? (
-//                           <ActivityIndicator size="small" color="#FF3B30" />
-//                         ) : (
-//                           <Ionicons name="trash-outline" size={22} color="#FF3B30" />
-//                         )}
+//                       <TouchableOpacity onPress={() => handleRemoveItem(item.product._id, item.product.name)} disabled={isThisItemRemoving}>
+//                         {isThisItemRemoving ? <ActivityIndicator size="small" color="#FF3B30" /> : <Ionicons name="trash-outline" size={22} color="#FF3B30" />}
 //                       </TouchableOpacity>
 //                     </View>
 //                   </View>
@@ -233,49 +168,21 @@
 //         </View>
 //       </ScrollView>
 
-//        <CartSummary
-//           subTotal={subTotal}
-//           shippingFee={shippingFee}
-//           tax={tax}
-//           total={total}
-//         />
+//       {/* Your exact original CartSummary component */}
+//       <CartSummary
+//         subTotal={subTotal}
+//         shippingFee={shippingFee}
+//         tax={tax}
+//         total={total}
+//       />
 
-//       <View className='absolute bottom-0 right-0 left-0 
-//        bg-background/95 backdrop-blur-xl border-t border-surface pt-4 pb-32 px-6  '>
-//         {/* Quick stats */}
-//         <View className='flex-row items-center justify-between mb-4'>
-//           <View className='flex-row item-center'>
-//             <Ionicons name='cart' size={20} color={"#1DB954"} />
-//             <Text className='text-text-secondary ml-2'>
-//               {cartItemCount} {cartItemCount === 1 ? "Item" : "Items"}</Text>
-//           </View>
-//           <View className='flex-row items-center'>
-//             <Text className='text-text-primary font-bold text-xl'
-//             >{total.toFixed(2)}</Text>
-//           </View>
-//         </View>
-
-//         {/* checkout btn */}
-//         <TouchableOpacity
-//           className='bg-primary rounded-2xl overflow-hidden mb-6'
-//           activeOpacity={0.8}
-//           onPress={handleChekout}
-//           disabled={paymentLoading}
-//         >
-//           <View className='py-5 flex-row items-center justify-center'>
-//             {paymentLoading ? (
-//               <ActivityIndicator size={"small"} color={"#121212"} />
-//             ) : (
-//               <>
-//                 <Text className='text-background font-bold text-lg mr-2'>Checkout</Text>
-//                 <Ionicons name='arrow-forward' size={20} color={"#121212"} />
-//               </>
-
-//             )}
-//           </View>
+//       <View className="px-6 pb-6 bg-background">
+//         <TouchableOpacity className="bg-primary h-14 rounded-2xl items-center justify-center flex-row" activeOpacity={0.8} onPress={handleChekout} disabled={paymentLoading}>
+//           {paymentLoading ? <ActivityIndicator size="small" color="#FFFFFF" /> : <Text className="text-background font-bold text-lg">Proceed to Checkout</Text>}
 //         </TouchableOpacity>
 //       </View>
-//       {/* Address modal */}
+
+//       {/* Your exact original AddressSelectionModal component */}
 //       <AddressSelectionModal
 //         visible={addressModalVisible}
 //         onClose={() => setAddressModalVisible(false)}
@@ -283,43 +190,24 @@
 //         isProccessing={paymentLoading}
 //       />
 
-
-//          {/* NEW: Paystack Native Webview Overlay Modal */}
-//         <Modal
-//         visible={checkoutUrl !== null}
-//         animationType="slide"
-//         onRequestClose={() => setCheckoutUrl(null)}
-//       >
-//         <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
-//           {/* Header to manually abort transaction context inside modal */}
-//            <View >
-//             <TouchableOpacity onPress={() => setCheckoutUrl(null)} >
-//               <Ionicons name="close" size={26} color="#000" />
-//             </TouchableOpacity>
-//             <Text >Secure Payment</Text>
-//             <View style={{ width: 26 }} />
-//           </View> 
-
-//            <WebView
-//             source={{ uri: checkoutUrl ?? "" }}
-//             onNavigationStateChange={handleWebViewStateChange}
-//             javaScriptEnabled={true}
-//             domStorageEnabled={true}
-//             style={{ flex: 1 }}
-//             startInLoadingState={true}
-//             renderLoading={() => (
-//               <ActivityIndicator size="large" color="#3bb75e" style={StyleSheet.absoluteFillObject} />
-//             )}
-//           /> 
+//       <Modal visible={!!checkoutUrl} animationType="slide">
+//         <SafeAreaView className="flex-1 bg-background">
+//           <View className="flex-row justify-between items-center p-4 border-b border-border">
+//             <Text className="text-lg font-bold text-text-primary">Secure Payment</Text>
+//             <TouchableOpacity onPress={() => setCheckoutUrl(null)}><Ionicons name="close" size={26} color="#000000" /></TouchableOpacity>
+//           </View>
+//           {checkoutUrl && (
+//             <WebView source={{ uri: checkoutUrl }} onNavigationStateChange={handleWebViewStateChange} javaScriptEnabled={true} startInLoadingState={true} renderLoading={() => <ActivityIndicator size="large" color="#000000" style={StyleSheet.absoluteFill} />} />
+//           )}
 //         </SafeAreaView>
-//       </Modal>  
-
-
+//       </Modal>
 //     </SafeScreen>
 //   )
 // }
 
-// export default CartScreen
+// export default CartScreen;
+
+
 
 
 
@@ -408,7 +296,7 @@ const CartScreen = () => {
     const { url } = navState;
     if (url.includes('payment-success') || url.includes('checkout/thankyou') || url.includes('callback')) {
       setCheckoutUrl(null);
-      clearCart(); 
+      clearCart();
       Alert.alert('Success!', 'Payment verified! Processing your order.');
     }
     if (url.includes('cancel') || url.includes('close')) {
@@ -494,7 +382,6 @@ const CartScreen = () => {
         </View>
       </ScrollView>
 
-      {/* Your exact original CartSummary component */}
       <CartSummary
         subTotal={subTotal}
         shippingFee={shippingFee}
@@ -503,12 +390,23 @@ const CartScreen = () => {
       />
 
       <View className="px-6 pb-6 bg-background">
-        <TouchableOpacity className="bg-primary h-14 rounded-2xl items-center justify-center flex-row" activeOpacity={0.8} onPress={handleChekout} disabled={paymentLoading}>
-          {paymentLoading ? <ActivityIndicator size="small" color="#FFFFFF" /> : <Text className="text-background font-bold text-lg">Proceed to Checkout</Text>}
+        <TouchableOpacity
+          className="w-full bg-primary py-4 rounded-2xl items-center justify-center flex-row"
+          activeOpacity={0.8}
+          onPress={handleChekout}
+          disabled={paymentLoading}
+        >
+          {paymentLoading ? (
+            <ActivityIndicator size="small" color="#FFFFFF" />
+          ) : (
+            <>
+              <Text className="text-background font-bold text-lg mr-2">Proceed to Checkout</Text>
+              <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
+            </>
+          )}
         </TouchableOpacity>
       </View>
 
-      {/* Your exact original AddressSelectionModal component */}
       <AddressSelectionModal
         visible={addressModalVisible}
         onClose={() => setAddressModalVisible(false)}
@@ -516,19 +414,37 @@ const CartScreen = () => {
         isProccessing={paymentLoading}
       />
 
-      <Modal visible={!!checkoutUrl} animationType="slide">
-        <SafeAreaView className="flex-1 bg-background">
-          <View className="flex-row justify-between items-center p-4 border-b border-border">
-            <Text className="text-lg font-bold text-text-primary">Secure Payment</Text>
-            <TouchableOpacity onPress={() => setCheckoutUrl(null)}><Ionicons name="close" size={26} color="#000000" /></TouchableOpacity>
+      <Modal visible={!!checkoutUrl} animationType="slide" onRequestClose={() => setCheckoutUrl(null)}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => setCheckoutUrl(null)} style={{}}>
+              <Ionicons name="close" size={26} color="#000" />
+            </TouchableOpacity>
+            <Text style={{ fontSize: 400 }}>Paystack Payment</Text>
+            <View style={{ width: 40 }} />
           </View>
-          {checkoutUrl && (
-            <WebView source={{ uri: checkoutUrl }} onNavigationStateChange={handleWebViewStateChange} javaScriptEnabled={true} startInLoadingState={true} renderLoading={() => <ActivityIndicator size="large" color="#000000" style={StyleSheet.absoluteFill} />} />
-          )}
+          <WebView
+            source={{ uri: checkoutUrl || '' }}
+            onNavigationStateChange={handleWebViewStateChange}
+            javaScriptEnabled={true}
+            domStorageEnabled={true}
+            startInLoadingState={true}
+            renderLoading={() => <ActivityIndicator size="large" color="#000" style={StyleSheet.absoluteFill} />}
+          />
         </SafeAreaView>
       </Modal>
+
     </SafeScreen>
   )
 }
 
-export default CartScreen;
+
+
+
+export default CartScreen
+const styles = StyleSheet.create({
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  }
+})
