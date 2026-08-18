@@ -17,7 +17,6 @@ export const ENV = {
     ADMIN_EMAIL: process.env.ADMIN_EMAIL,
     CLIENT_URL: process.env.CLIENT_URL,
 
-    PAYSTACK_PUBLIC_KEY=process.env.PAYSTACK_PUBLIC_KEY,
-    PAYSTACK_SECRET_KEY=process.env.PAYSTACK_SECRET_KEY
+    PAYSTACK_SECRET_KEY:process.env.PAYSTACK_SECRET_KEY
 
 }
