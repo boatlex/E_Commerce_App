@@ -1,5 +1,6 @@
-import { ActivityIndicator, Alert, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Alert, Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
+//import axios from 'axios'
 import SafeScreen from '../components/SafeScreen'
 import { WebView } from "react-native-webview"
 import useCart from '@/hooks/useCart'
@@ -17,7 +18,21 @@ import EmptyUi from '../components/EmptyUi'
 
 const CartScreen = () => {
   const api = useApi()
-  const { cart, cartTotal, clearCart, isError, isLoading, isRemovingFromCart, isUpdatingQuantity, removeFromCart, updateQuantity } = useCart()
+  const {
+    cart,
+    cartTotal,
+    clearCart,
+    isError,
+    isLoading,
+    isRemovingFromCart,
+    isUpdatingQuantity,
+    removeFromCart,
+    updateQuantity,
+    addToCart,
+    cartItemCount,
+    isAddingToCart,
+    isClearingCart
+  } = useCart()
   const { addresses } = useAddresses()
 
   const [paymentLoading, setPaymentLoading] = useState(false)
@@ -166,39 +181,61 @@ const CartScreen = () => {
             )
           })}
         </View>
+
+        <CartSummary
+          subTotal={subTotal}
+          shippingFee={shippingFee}
+          tax={tax}
+          total={total}
+        />
+
+
+        <AddressSelectionModal
+          visible={addressModalVisible}
+          onClose={() => setAddressModalVisible(false)}
+          onProceed={handleProceedWithPayment}
+          isProccessing={paymentLoading}
+        />
       </ScrollView>
 
-      <CartSummary
-        subTotal={subTotal}
-        shippingFee={shippingFee}
-        tax={tax}
-        total={total}
-      />
 
-      <View className="px-6 pb-6 bg-background">
+      <View className='absolute bottom-0 right-0 left-0
+       bg-background backdrop-blur-xl border-t border-surface pt-4 pb-32 px-6'>
+        {/* quick start */}
+        <View className='flex-row items-center justify-between mb-4'>
+          <View className='flex-row items-center'>
+            <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
+            <Text className='text-text-secondary ml-2'>
+              {cartItemCount} {cartItemCount === 1 ? "Item" : "Items"}</Text>
+          </View>
+          <View className='flex-row items-center'>
+            <Text className='text-text-primary font-bold text-xl'>
+              {total?.toFixed(2)}</Text>
+          </View>
+        </View>
+
+        {/* Checkout BTN */}
         <TouchableOpacity
-          className="w-full bg-primary py-4 rounded-2xl items-center justify-center flex-row"
-          activeOpacity={0.8}
+         className='bg-primary rounded-2xl overflow-hidden mb-10'
+         activeOpacity={0.8}
           onPress={handleChekout}
           disabled={paymentLoading}
         >
-          {paymentLoading ? (
+           <View className='py-5 flex-row items-center justify-center'>
+            {paymentLoading ? (
             <ActivityIndicator size="small" color="#FFFFFF" />
           ) : (
             <>
-              <Text className="text-background font-bold text-lg mr-2">Proceed to Checkout</Text>
+              <Text className="text-background font-bold text-lg mr-2">Checkout</Text>
               <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
             </>
           )}
+           </View>
         </TouchableOpacity>
       </View>
 
-      <AddressSelectionModal
-        visible={addressModalVisible}
-        onClose={() => setAddressModalVisible(false)}
-        onProceed={handleProceedWithPayment}
-        isProccessing={paymentLoading}
-      />
+
+      
 
       <Modal
         visible={!!checkoutUrl}
@@ -211,7 +248,7 @@ const CartScreen = () => {
         }} >
 
         <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
-          <View style={styles.header}>
+          <View className='flex-row items-center'>
             <TouchableOpacity onPress={() => setCheckoutUrl(null)} style={{}}>
               <Ionicons name="close" size={26} color="#000" />
             </TouchableOpacity>
@@ -249,9 +286,3 @@ const CartScreen = () => {
 
 
 export default CartScreen
-const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  }
-})
