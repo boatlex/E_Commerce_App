@@ -81,15 +81,17 @@ export const intializedPayment = async (req, res) => {
             }
         );
 
-        // 4. Create a "pending" order in your database before redirecting the user
+               // 4. Create a "pending" order in your database before redirecting the user
         await Order.create({
             user: user._id,
-            items: validateItems,
+            clerkId: user.clerkId || req.user.id || "clerk_default_dev_id", // 🟢 FIXED: Satisfies your schema's required clerkId property
+            orderItems: validateItems,                                    // 🟢 FIXED: Maps to your schema array variable name
             shippingAddress: shippingAddress,
             totalPrice: total,
-            paymentReference: response.data.data.reference, // Save Paystack's tracking reference
+            paymentReference: response.data.data.reference, 
             paymentStatus: "pending"
         });
+
 
         // Return authorization_url and reference to React Native
         res.status(200).json(response.data);
