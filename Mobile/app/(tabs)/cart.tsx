@@ -67,31 +67,70 @@ const CartScreen = () => {
     setAddressModalVisible(true)
   }
 
+  // const handleProceedWithPayment = async (selectedAddress: Address) => {
+  //   setAddressModalVisible(false)
+  //   try {
+  //     setPaymentLoading(true)
+  //     const response = await api.post("/payment/initialized", {
+  //       cartItems,
+  //       shippingAddress: {
+  //         fullName: selectedAddress.fullName,
+  //         streetAddress: selectedAddress.streetAddress,
+  //         city: selectedAddress.city,
+  //         state: selectedAddress.state,
+  //         zipCode: selectedAddress.zipCode,
+  //         phoneNumber: selectedAddress.phoneNumber,
+  //       }
+  //     })
+  //     if (response.data.status) {
+  //       setCheckoutUrl(response.data.data.authorization_url);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error:",'Payment initialization failed', error);
+  //     Alert.alert("Error", "Failed to Initialize Payment")
+  //   } finally {
+  //     setPaymentLoading(false)
+  //   }
+  // }
+
   const handleProceedWithPayment = async (selectedAddress: Address) => {
-    setAddressModalVisible(false)
-    try {
-      setPaymentLoading(true)
-      const response = await api.post("/payment/initialized", {
-        cartItems,
-        shippingAddress: {
-          fullName: selectedAddress.fullName,
-          streetAddress: selectedAddress.streetAddress,
-          city: selectedAddress.city,
-          state: selectedAddress.state,
-          zipCode: selectedAddress.zipCode,
-          phoneNumber: selectedAddress.phoneNumber,
-        }
-      })
-      if (response.data.status) {
-        setCheckoutUrl(response.data.data.authorization_url);
+  setAddressModalVisible(false)
+  try {
+    setPaymentLoading(true)
+    const response = await api.post("/payment/initialized", {
+      cartItems,
+      shippingAddress: {
+        fullName: selectedAddress.fullName,
+        streetAddress: selectedAddress.streetAddress,
+        city: selectedAddress.city,
+        state: selectedAddress.state,
+        zipCode: selectedAddress.zipCode,
+        phoneNumber: selectedAddress.phoneNumber,
       }
-    } catch (error) {
-      console.error("Error:",'Payment initialization failed', error);
-      Alert.alert("Error", "Failed to Initialize Payment")
-    } finally {
-      setPaymentLoading(false)
+    })
+    
+    if (response.data.status) {
+      setCheckoutUrl(response.data.data.authorization_url);
     }
+  } catch (error: any) {
+    // 👇 ADD THESE LINES TO PRINT THE EXACT 55-BYTE MESSAGE IN EXPO CLI
+    console.log("================ 🚨 FRONTEND ERROR DEBUG 🚨 ================");
+    if (error.response) {
+      console.log("❌ Server Error Payload Data:", error.response.data);
+      console.log("❌ Server Error Status Code:", error.response.status);
+      
+      // Alert the exact message string your backend sent back
+      Alert.alert("Checkout Error", error.response.data.message || "Failed to Initialize Payment");
+    } else {
+      console.log("❌ Connection Error Message:", error.message);
+      Alert.alert("Error", "Network connectivity failure");
+    }
+    console.log("==========================================================");
+  } finally {
+    setPaymentLoading(false)
   }
+}
+
 
   const handleWebViewStateChange = (navState: any) => {
     const { url } = navState;
