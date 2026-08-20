@@ -283,47 +283,48 @@ const CartScreen = () => {
 
 
       
+<Modal
+  visible={!!checkoutUrl}
+  animationType="slide"
+  onRequestClose={() => {
+    Alert.alert("Cancel Payment", "Are you sure you want to exit checkout?", [
+      { text: "Stay", style: "cancel" },
+      { text: "Exit", style: "destructive", onPress: () => setCheckoutUrl(null) }
+    ]);
+  }} 
+>
+  <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+    {/* Clean, well-spaced Header Bar */}
+    <View className='flex-row items-center p-4 border-b border-gray-100'>
+      <TouchableOpacity onPress={() => setCheckoutUrl(null)} style={{ padding: 4 }}>
+        <Ionicons name="close" size={26} color="#000" />
+      </TouchableOpacity>
+      
+      {/* 🟢 FIXED: Changed font size from 400 to 18, added typography formatting */}
+       <Text className="text-lg font-bold text-black ml-4">
+        Paystack Payment
+      </Text>
+    </View>
 
-      <Modal
-        visible={!!checkoutUrl}
-        animationType="slide"
-        onRequestClose={() => {
-          Alert.alert("Cancel Payment", "Are you sure you want to exit checkout?", [
-            { text: "Stay", style: "cancel" },
-            { text: "Exit", style: "destructive", onPress: () => setCheckoutUrl(null) }
-          ]);
-        }} >
-
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
-          <View className='flex-row items-center'>
-            <TouchableOpacity onPress={() => setCheckoutUrl(null)} style={{}}>
-              <Ionicons name="close" size={26} color="#000" />
-            </TouchableOpacity>
-            <Text style={{ fontSize: 400 }}>Paystack Payment</Text>
-            <View style={{ width: 40 }} />
+    {checkoutUrl && (
+      <WebView
+        source={{ uri: checkoutUrl }}
+        onNavigationStateChange={handleWebViewStateChange}
+        javaScriptEnabled={true}
+        domStorageEnabled={true}
+        startInLoadingState={true}
+        // Native Android UserAgent declaration string mapping
+        userAgent="Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.0.0 Mobile Safari/537.36"
+        renderLoading={() => (
+          <View className="absolute inset-0 items-center justify-center bg-surface">
+            <ActivityIndicator size="large" color="#3B82F6" />
           </View>
-          {checkoutUrl && (
-            <WebView
-              source={{ uri: checkoutUrl }}
-              onNavigationStateChange={handleWebViewStateChange}
-              javaScriptEnabled={true}
-              domStorageEnabled={true}
-              startInLoadingState={true}
+        )}
+      />
+    )}
+  </SafeAreaView>
+</Modal>
 
-              // 👇 ADD THIS EXACT LINE HERE 👇
-              userAgent="Mozilla/5.0 (Linux; Android 10; Mobile) 
-              AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.0.0 Mobile Safari/537.36"
-
-              renderLoading={() => (
-                <View className="absolute inset-0 items-center justify-center bg-surface">
-                  <ActivityIndicator size="large" color="#3B82F6" />
-                </View>
-              )}
-            />
-          )}
-
-        </SafeAreaView>
-      </Modal>
 
     </SafeScreen>
   )
