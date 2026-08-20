@@ -8,14 +8,14 @@ import { User } from "../models/user.model.js";
 
 export const intializedPayment = async (req, res) => {
     try {
-        const { cartItems, shipingAddress } = req.body;
+        const { cartItems, shippingAddress } = req.body;
         
         // 1. Fixed req.user syntax
         const user = req.user; 
         if (!user || !user.email) {
             return res.status(401).json({ message: "User authentication or email missing" });
         }
-        if (!cartItems || cartItems.length === 0 || !shipingAddress) {
+        if (!cartItems || cartItems.length === 0 || !shippingAddress) {
             return res.status(400).json({ message: "Cart is Empty or shipping address missing" });
         }
 
