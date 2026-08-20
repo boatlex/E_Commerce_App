@@ -9,8 +9,6 @@ import { User } from "../models/user.model.js";
 export const intializedPayment = async (req, res) => {
     try {
         const { cartItems, shippingAddress } = req.body;
-
-        // 1. Fixed req.user syntax
         const user = req.user;
         if (!user || !user.email) {
             return res.status(401).json({ message: "User authentication or email missing" });
@@ -22,7 +20,6 @@ export const intializedPayment = async (req, res) => {
         let subTotal = 0;
         const validateItems = [];
 
-        // 2. Fixed variable scoping inside the loop
         for (const item of cartItems) {
             const productId = item.product?._id || item.product || item.productId;
             if (!productId) {
@@ -35,7 +32,6 @@ export const intializedPayment = async (req, res) => {
                 return res.status(400).json({ message: `Product not found` });
             }
 
-            // Fixed: Check stock against user's requested item.quantity, not product.quantity
             if (product.stock < item.quantity) {
                 return res.status(400).json({ message: `Insufficient stock for ${product.name}` });
             }
@@ -45,7 +41,7 @@ export const intializedPayment = async (req, res) => {
                 product: product._id.toString(),
                 name: product.name,
                 price: product.price,
-                quantity: item.quantity, // Fixed: use item.quantity
+                quantity: item.quantity, 
                 image: product.images?.[0] || ""
             });
         }
@@ -60,17 +56,16 @@ export const intializedPayment = async (req, res) => {
 
         const paystackAmount = Math.round(total * 100);
 
-        // 3. Fixed URL: Must hit /transaction/initialize
         const response = await axios.post(
             'https://api.paystack.co/transaction/initialize',
             {
                 email: user.email,
                 amount: paystackAmount,
                 metadata: {
-                    userId: user._id.toString(), // CRUCIAL: Pass this to find the user/order in webhook
+                    userId: user._id.toString(), 
                     cartCount: validateItems.length,
                     shippingAddress: shippingAddress,
-                    items: validateItems // Sending items allows webhook to see what was bought
+                    items: validateItems 
                 }
             },
             {
@@ -81,11 +76,10 @@ export const intializedPayment = async (req, res) => {
             }
         );
 
-               // 4. Create a "pending" order in your database before redirecting the user
         await Order.create({
             user: user._id,
-            clerkId: user.clerkId || req.user.id || "clerk_default_dev_id", // 🟢 FIXED: Satisfies your schema's required clerkId property
-            orderItems: validateItems,                                    // 🟢 FIXED: Maps to your schema array variable name
+            clerkId: user.clerkId || req.user.id || "clerk_default_dev_id", 
+            orderItems: validateItems,                                     
             shippingAddress: shippingAddress,
             totalPrice: total,
             paymentReference: response.data.data.reference, 
@@ -93,7 +87,6 @@ export const intializedPayment = async (req, res) => {
         });
 
 
-        // Return authorization_url and reference to React Native
         res.status(200).json(response.data);
 
     } catch (error) {
@@ -106,7 +99,6 @@ export const intializedPayment = async (req, res) => {
 
 export const validatedPayment = async (req, res) => {
     try {
-        // 5. SECURITY: Verify that this webhook request actually came from Paystack
         const hash = crypto
             .createHmac('sha512', ENV.PAYSTACK_SECRET_KEY)
             .update(JSON.stringify(req.body))
@@ -120,8 +112,6 @@ export const validatedPayment = async (req, res) => {
 
         if (event.event === 'charge.success') {
             const { reference, customer } = event.data;
-
-            // Find the pending order using the reference Paystack returned
             const order = await Order.findOne({ paymentReference: reference });
 
             if (order) {
@@ -130,14 +120,12 @@ export const validatedPayment = async (req, res) => {
                 order.paidAt = new Date();
                 await order.save();
 
-                // OPTIONAL: Deduct product stock here securely since payment is verified
                 for (const item of order.items) {
                     await Product.findByIdAndUpdate(item.product, {
                         $inc: { stock: -item.quantity }
                     });
                 }
 
-                // OPTIONAL: Clear the user's shopping cart model here
                 await Cart.findOneAndUpdate({ user: order.user }, { items: [] });
 
                 console.log(`✅ Order ${order._id} successfully paid by ${customer.email}`);
@@ -146,7 +134,6 @@ export const validatedPayment = async (req, res) => {
             }
         }
 
-        // Always send a 200 OK back to Paystack so they stop retrying the webhook
         res.sendStatus(200);
 
     } catch (error) {
@@ -158,105 +145,9 @@ export const validatedPayment = async (req, res) => {
 
 
 
-// export const intializedPayment = async (req, res) => {
-
-//     try {
-
-//         const { cartItems, shipingAddress } = req.body
-//         const user = req.user
-//         if (!user || !user.email) {
-//             return res.status(401).json({ message: "User authentication or email missing" });
-//         }
-//         if (!cartItems || !shipingAddress) {
-//             return res.status(400).json({ message: "Cart is Empty" })
-//         }
-
-//         let subTotal = 0
-//         const validateItems = []
-
-//         for (const item of cartItems) {
-//             if (!item.product?._id) {
-//                 return res.status(400).json({ message: "Invalid product ID format provided" });
-//             }
-//             const product = await Product.findById(item.product._id)
-//             if (!product) {
-//                 return res.status(400).json({ message: `Product ${item.product.name} not found` })
-//             }
-//             if (product.stock < item.quantity) {
-//                 return res.status(400).json({ message: `Insufficient stock for ${product.name}` })
-//             }
-
-//             subTotal += product.price * item.quantity
-//             validateItems.push({
-//                 product: product._id.toString(),
-//                 name: product.name,
-//                 price: product.price,
-//                 quantity: item.quantity,
-//                 image: product.images?.[0] || ""
-//             })
-//         }
-
-//         const shippingFee = 10.0
-//         const tax = subTotal * 0.08
-//         const total = subTotal + shippingFee + tax
-
-//         if (total < 0) {
-//             return res.status(400).json({ message: "Invalid Order Total" })
-//         }
 
 
-//         const paystackAmount = Math.round(total * 100);
-
-//         const response = await axios.post(
-//             'https://paystack.co',
-//             {
-//                 email: user.email,
-//                 amount: paystackAmount,
-//                 // Optional: callback_url: 'https://yourwebsite.com'
-
-//                 metadata: {
-//                     custom_fields: [
-//                         {
-//                             display_name: "Cart Count", variable_name: "cart_count",
-//                             value: validateItems.length
-//                         }
-//                     ]
-//                 }
-//             },
-//             {
-//                 headers: {
-//                     Authorization: `Bearer ${ENV.PAYSTACK_SECRET_KEY}`,
-//                     'Content-Type': 'application/json',
-//                 },
-//             }
-//         );
-//         res.status(200).json(response.data.data)
-
-//     } catch (error) {
-//         console.error("Paystack Initialize Error:", error.response?.data || error.message);
-//         return res.status(500).json({
-//             error: error.response?.data?.message || 'Initialization failed'
-//         });
-//     }
-
-// }
 
 
-// export const validatedPayment = async (req, res) => {
 
 
-//     try {
-//         const event = req.body;
-
-//         if (event.event === 'charge.success') {
-//             const { reference, customer, amount } = event.data;
-//             // Update your database: Mark order as paid
-//             console.log(`Payment successful for ${customer.email}. Ref: ${reference}`);
-//         }
-
-//         res.sendStatus(200);
-
-//     } catch (error) {
-//         res.status(500).json({ error: error.response?.data?.message || 'validated payment failed' });
-//     }
-// }
