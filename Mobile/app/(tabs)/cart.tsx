@@ -1,6 +1,5 @@
 import { ActivityIndicator, Alert, Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
-//import axios from 'axios'
 import SafeScreen from '../components/SafeScreen'
 import { WebView } from "react-native-webview"
 import useCart from '@/hooks/useCart'
@@ -67,57 +66,25 @@ const CartScreen = () => {
     setAddressModalVisible(true)
   }
 
-  // const handleProceedWithPayment = async (selectedAddress: Address) => {
-  //   setAddressModalVisible(false)
-  //   try {
-  //     setPaymentLoading(true)
-  //     const response = await api.post("/payment/initialized", {
-  //       cartItems,
-  //       shippingAddress: {
-  //         fullName: selectedAddress.fullName,
-  //         streetAddress: selectedAddress.streetAddress,
-  //         city: selectedAddress.city,
-  //         state: selectedAddress.state,
-  //         zipCode: selectedAddress.zipCode,
-  //         phoneNumber: selectedAddress.phoneNumber,
-  //       }
-  //     })
-  //     if (response.data.status) {
-  //       setCheckoutUrl(response.data.data.authorization_url);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error:",'Payment initialization failed', error);
-  //     Alert.alert("Error", "Failed to Initialize Payment")
-  //   } finally {
-  //     setPaymentLoading(false)
-  //   }
-  // }
+
 
  const handleProceedWithPayment = async (selectedAddress: Address) => {
   setAddressModalVisible(false)
   try {
     setPaymentLoading(true)
-
-    // Ensure we are passing the raw array. If cartItems is empty, fallback to cart?.items
     const itemsToSend = cartItems.length > 0 ? cartItems : (cart?.items || []);
-
-    console.log("📤 SENDING TO SEVALLA:", JSON.stringify({ itemsCount: itemsToSend.length, shippingAddress: !!selectedAddress }));
-
     const response = await api.post("/payment/initialized", {
-      cartItems: itemsToSend, // Ensure this is a direct, populated array
+      cartItems: itemsToSend, 
       shippingAddress: {
         fullName: selectedAddress.fullName,
         streetAddress: selectedAddress.streetAddress,
         city: selectedAddress.city,
         state: selectedAddress.state,
-        zipCode: Number(selectedAddress.zipCode), // Coerce to Number to match your Mongoose Schema exactly!
-        phoneNumber: Number(selectedAddress.phoneNumber), // Coerce to Number to match your Mongoose Schema exactly!
+        zipCode: Number(selectedAddress.zipCode), 
+        phoneNumber: Number(selectedAddress.phoneNumber), 
       }
     })
     
-    // Paystack returns { status: true, data: { authorization_url } }
-    // Since your backend returns res.status(200).json(response.data),
-    // response.data here represents Paystack's root response.
     if (response.data?.status) {
       setCheckoutUrl(response.data.data.authorization_url);
     } else {
@@ -125,9 +92,9 @@ const CartScreen = () => {
     }
 
   } catch (error: any) {
-    console.log("================ 🚨 FRONTEND ERROR DEBUG 🚨 ================");
+    
     if (error.response) {
-      console.log("❌ Server Error Payload Data:", error.response.data);
+      console.log("❌ Server Error Payload Data:", error.response.data)
       Alert.alert("Checkout Error", error.response.data.message || "Failed to Initialize Payment");
     } else {
       console.log("❌ Connection Error Message:", error.message);
@@ -294,13 +261,10 @@ const CartScreen = () => {
   }} 
 >
   <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
-    {/* Clean, well-spaced Header Bar */}
     <View className='flex-row items-center p-4 border-b border-gray-100'>
       <TouchableOpacity onPress={() => setCheckoutUrl(null)} style={{ padding: 4 }}>
         <Ionicons name="close" size={26} color="#000" />
       </TouchableOpacity>
-      
-      {/* 🟢 FIXED: Changed font size from 400 to 18, added typography formatting */}
        <Text className="text-lg font-bold text-black ml-4">
         Paystack Payment
       </Text>
@@ -313,7 +277,7 @@ const CartScreen = () => {
         javaScriptEnabled={true}
         domStorageEnabled={true}
         startInLoadingState={true}
-        // Native Android UserAgent declaration string mapping
+        
         userAgent="Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.0.0 Mobile Safari/537.36"
         renderLoading={() => (
           <View className="absolute inset-0 items-center justify-center bg-surface">
