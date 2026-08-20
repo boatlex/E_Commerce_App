@@ -86,7 +86,7 @@ const CartScreen = () => {
         setCheckoutUrl(response.data.data.authorization_url);
       }
     } catch (error) {
-      console.error('Payment initialization failed', error);
+      console.error("Error:",'Payment initialization failed', error);
       Alert.alert("Error", "Failed to Initialize Payment")
     } finally {
       setPaymentLoading(false)
