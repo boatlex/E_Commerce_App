@@ -60,14 +60,14 @@ export const intializedPayment = async (req, res) => {
 
         // 3. Fixed URL: Must hit /transaction/initialize
         const response = await axios.post(
-            'https://paystack.co',
+            'https://api.paystack.co/transaction/initialize',
             {
                 email: user.email,
                 amount: paystackAmount,
                 metadata: {
                     userId: user._id.toString(), // CRUCIAL: Pass this to find the user/order in webhook
                     cartCount: validateItems.length,
-                    shipingAddress: shipingAddress,
+                    shippingAddress: shippingAddress,
                     items: validateItems // Sending items allows webhook to see what was bought
                 }
             },
@@ -83,14 +83,14 @@ export const intializedPayment = async (req, res) => {
         await Order.create({
             user: user._id,
             items: validateItems,
-            shippingAddress: shipingAddress,
+            shippingAddress: shippingAddress,
             totalPrice: total,
             paymentReference: response.data.data.reference, // Save Paystack's tracking reference
             paymentStatus: "pending"
         });
 
         // Return authorization_url and reference to React Native
-        res.status(200).json(response.data.data);
+        res.status(200).json(response.data);
 
     } catch (error) {
         console.error("Paystack Initialize Error:", error.response?.data || error.message);
