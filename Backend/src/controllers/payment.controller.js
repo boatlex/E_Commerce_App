@@ -9,9 +9,9 @@ import { User } from "../models/user.model.js";
 export const intializedPayment = async (req, res) => {
     try {
         const { cartItems, shippingAddress } = req.body;
-        
+
         // 1. Fixed req.user syntax
-        const user = req.user; 
+        const user = req.user;
         if (!user || !user.email) {
             return res.status(401).json({ message: "User authentication or email missing" });
         }
@@ -24,15 +24,17 @@ export const intializedPayment = async (req, res) => {
 
         // 2. Fixed variable scoping inside the loop
         for (const item of cartItems) {
-            if (!item.product?._id) {
+            const productId = item.product?._id || item.product || item.productId;
+            if (!productId) {
+                console.log("❌ Failed validation on item payload structure:", item);
                 return res.status(400).json({ message: "Invalid product ID format provided" });
             }
-            
-            const product = await Product.findById(item.product._id);
+
+            const product = await Product.findById(productId);
             if (!product) {
                 return res.status(400).json({ message: `Product not found` });
             }
-            
+
             // Fixed: Check stock against user's requested item.quantity, not product.quantity
             if (product.stock < item.quantity) {
                 return res.status(400).json({ message: `Insufficient stock for ${product.name}` });
@@ -116,10 +118,10 @@ export const validatedPayment = async (req, res) => {
 
         if (event.event === 'charge.success') {
             const { reference, customer } = event.data;
-            
+
             // Find the pending order using the reference Paystack returned
             const order = await Order.findOne({ paymentReference: reference });
-            
+
             if (order) {
                 order.paymentStatus = "paid";
                 order.isPaid = true;
