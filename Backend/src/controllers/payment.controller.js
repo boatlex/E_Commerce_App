@@ -62,8 +62,10 @@ export const intializedPayment = async (req, res) => {
                 email: user.email,
                 amount: paystackAmount,
 
-                 fullName: shippingAddress.fullName,
-                Phone: shippingAddress.phoneNumber,
+                first_name: user.name || shippingAddress.fullName.split(" ")[0], 
+                last_name: shippingAddress.fullName.split(" ").slice(1).join(" ") || "N/A", 
+                phone: String(shippingAddress.phoneNumber || user.phone || ""), 
+                
                 metadata: {
                     userId: user._id.toString(), 
                     cartCount: validateItems.length,
