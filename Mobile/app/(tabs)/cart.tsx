@@ -15,6 +15,8 @@ import AddressSelectionModal from '../components/AddressSelectionModal'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import EmptyUi from '../components/EmptyUi'
 
+import * as Sentry from "@sentry/react-native"
+
 const CartScreen = () => {
   const api = useApi()
   const {
@@ -70,6 +72,14 @@ const CartScreen = () => {
 
  const handleProceedWithPayment = async (selectedAddress: Address) => {
   setAddressModalVisible(false)
+   //checkout initiatede
+   Sentry.logger.info("Checkout Initiated",{
+     itemCount:cartItemCount,
+     total:total.toFixed(2),
+     city:selectedAddress.city
+   })
+
+
   try {
     setPaymentLoading(true)
     const itemsToSend = cartItems.length > 0 ? cartItems : (cart?.items || []);
@@ -93,10 +103,23 @@ const CartScreen = () => {
 
   } catch (error: any) {
     
+    
     if (error.response) {
+       Sentry.logger.error("Payment Sheet Init Failed",{
+        errorCode:error.code,
+        errorMessage:error.message,
+        cartTotal:total,
+        itemCount:cartItems.length
+       }),
       console.log("❌ Server Error Payload Data:", error.response.data)
       Alert.alert("Checkout Error", error.response.data.message || "Failed to Initialize Payment");
     } else {
+        Sentry.logger.error("Network connectivity failure",{
+        errorCode:error.code,
+        errorMessage:error.message,
+        cartTotal:total,
+        itemCount:cartItems.length
+       }),
       console.log("❌ Connection Error Message:", error.message);
       Alert.alert("Error", "Network connectivity failure");
     }
@@ -113,6 +136,11 @@ const CartScreen = () => {
       setCheckoutUrl(null);
       clearCart();
       Alert.alert('Success!', 'Payment verified! Processing your order.');
+      Sentry.logger.info("Payment Verified",{
+     itemCount:cartItemCount,
+     total:total.toFixed(2),
+     
+   })
     }
     if (url.includes('cancel') || url.includes('close')) {
       setCheckoutUrl(null);
