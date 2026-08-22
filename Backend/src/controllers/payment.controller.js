@@ -61,11 +61,17 @@ export const intializedPayment = async (req, res) => {
             {
                 email: user.email,
                 amount: paystackAmount,
+
+                 fullName: shippingAddress.fullName,
+                Phone: shippingAddress.phoneNumber,
                 metadata: {
                     userId: user._id.toString(), 
                     cartCount: validateItems.length,
                     shippingAddress: shippingAddress,
-                    items: validateItems 
+                    items: validateItems,
+                    
+                     customerName: shippingAddress.fullName,
+                    customerPhone: shippingAddress.phoneNumber
                 }
             },
             {
