@@ -1,10 +1,10 @@
 import axios from "axios";
 import { ENV } from "../config/env.js";
-import crypto from "crypto"; // Built-in Node.js module
+import crypto from "crypto"; 
 import { Cart } from "../models/cart.model.js";
 import { Order } from "../models/order.model.js";
 import { Product } from "../models/product.model.js";
-import { User } from "../models/user.model.js";
+
 
 export const intializedPayment = async (req, res) => {
     try {
@@ -61,18 +61,24 @@ export const intializedPayment = async (req, res) => {
             {
                 email: user.email,
                 amount: paystackAmount,
-
-                first_name: user.name || shippingAddress.fullName.split(" ")[0], 
-                last_name: shippingAddress.fullName.split(" ").slice(1).join(" ") || "N/A", 
-                phone: String(shippingAddress.phoneNumber || user.phone || ""), 
-                
                 metadata: {
                     userId: user._id.toString(), 
                     cartCount: validateItems.length,
                     shippingAddress: shippingAddress,
                     items: validateItems,
-                    
-                     customerName: shippingAddress.fullName,
+                    custom_fields: [
+                        {
+                            display_name: "Customer Full Name",
+                            variable_name: "customer_name",
+                            value: shippingAddress.fullName || user.name || "N/A"
+                        },
+                        {
+                            display_name: "Customer Phone Number",
+                            variable_name: "customer_phone",
+                            value: String(shippingAddress.phoneNumber || user.phone || "N/A")
+                        }
+                    ],
+                    customerName: shippingAddress.fullName,
                     customerPhone: shippingAddress.phoneNumber
                 }
             },
@@ -94,7 +100,6 @@ export const intializedPayment = async (req, res) => {
             paymentStatus: "pending"
         });
 
-
         res.status(200).json(response.data);
 
     } catch (error) {
@@ -105,11 +110,8 @@ export const intializedPayment = async (req, res) => {
     }
 };
 
-
-
 export const validatedPayment = async (req, res) => {
     try {
-        
         const payload = req.rawBody ? req.rawBody : JSON.stringify(req.body);
 
         const hash = crypto
@@ -122,56 +124,53 @@ export const validatedPayment = async (req, res) => {
             return res.status(401).json({ message: "Unauthorized: Invalid signature" });
         }
 
-        const event = req.body;
+        const event = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
 
         if (event.event === 'charge.success') {
-            const { reference } = event.data;
+            const { reference, metadata } = event.data;
             
             const order = await Order.findOne({ paymentReference: reference });
 
             if (order) {
-                order.paymentStatus = "paid";
-                order.isPaid = true; 
-                order.status = "pending"        
-                order.paidAt = new Date();
-                
-                await order.save();
+                if (!order.isPaid) {
+                    order.paymentStatus = "paid";
+                    order.isPaid = true; 
+                    order.status = "pending";        
+                    order.paidAt = new Date();
 
-                
-                if (order.orderItems && order.orderItems.length > 0) {
-                    for (const item of order.orderItems) {
-                        await Product.findByIdAndUpdate(item.product, {
-                            $inc: { stock: -item.quantity }
-                        });
+                    if (metadata) {
+                        order.shippingAddress.fullName = metadata.customerName || order.shippingAddress.fullName;
+                        order.shippingAddress.phoneNumber = metadata.customerPhone || order.shippingAddress.phoneNumber;
                     }
-                }
+                    
+                    await order.save();
+
+                    if (order.orderItems && order.orderItems.length > 0) {
+                        for (const item of order.orderItems) {
+                            await Product.findByIdAndUpdate(item.product, {
+                                $inc: { stock: -item.quantity }
+                            });
+                        }
+                    }
 
                 
-                await Cart.findOneAndUpdate({ user: order.user }, { items: [] });
-                
-                console.log(`✅ MongoDB Order ${order._id} successfully switched to PAID.`);
+                    await Cart.findOneAndUpdate({ user: order.user }, { items: [] });
+                    
+                    console.log(`✅ MongoDB Order ${order._id} successfully switched to PAID.`);
+                } else {
+                    console.log(`ℹ️ Order ${order._id} was already previously marked as paid.`);
+                }
             } else {
                 console.warn(`⚠️ Target order reference not found: ${reference}`);
             }
         }
 
-        
         return res.sendStatus(200);
 
     } catch (error) {
         console.error("💥 Critical Webhook Exception:", error);
-        return res.status(500).json({ error: error.message });
+        if (!res.headersSent) {
+            return res.status(500).json({ error: error.message });
+        }
     }
 };
-
-
-
-
-
-
-
-
-
-
-
-
