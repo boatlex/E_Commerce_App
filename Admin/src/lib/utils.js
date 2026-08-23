@@ -1,4 +1,3 @@
-
 export const capitalizedText = (text)=>{
     if(!text) return text
  return text.charAt(0).toUpperCase() + text.slice(1)
@@ -6,13 +5,14 @@ export const capitalizedText = (text)=>{
 
 export const getOrderStatusBadge = (status)=>{
     switch (status?.toLowerCase()) {
-        case delivered:
+        //  FIXED: Added quotes around the case matching strings
+        case "delivered":
             return "badge-success"
-        case shipped:
+        case "shipped":
             return "badge-info"
-        case pending:
+        case "pending":
             return "badge-warning"
-        case cancelled:
+        case "cancelled":
             return "badge-danger"
     
         default:
@@ -21,13 +21,12 @@ export const getOrderStatusBadge = (status)=>{
 }
 
 export const getStockStatusBadge = (stock)=>{
-    if(stock ===0) return {text:"Out of stock", class:"badge-error"}
-    if(stock <15) return {text:"Low stock", class:"badge-warning"}
+    if(stock === 0) return {text:"Out of stock", class:"badge-error"}
+    if(stock < 15) return {text:"Low stock", class:"badge-warning"}
     return {text:"In stock", class:"badge-success"}
 }
 
 export const formatDate = (dateString)=>{
-
     if (!dateString) return ""
     const date = new Date(dateString)
     if(isNaN(date.getTime())) return ""
