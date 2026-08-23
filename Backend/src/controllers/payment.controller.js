@@ -105,11 +105,13 @@ export const intializedPayment = async (req, res) => {
     }
 };
 
+
+
 export const validatedPayment = async (req, res) => {
     try {
         const hash = crypto
             .createHmac('sha512', ENV.PAYSTACK_SECRET_KEY)
-            .update(JSON.stringify(req.body))
+            .update(JSON.stringify(req.body)) 
             .digest('hex');
 
         if (hash !== req.headers['x-paystack-signature']) {
@@ -118,37 +120,47 @@ export const validatedPayment = async (req, res) => {
 
         const event = req.body;
 
+        
         if (event.event === 'charge.success') {
             const { reference, customer } = event.data;
+            
+            
             const order = await Order.findOne({ paymentReference: reference });
 
             if (order) {
                 order.paymentStatus = "paid";
-                order.isPaid = true;
+                order.status = "pending"; 
+                order.isPaid = true;         
                 order.paidAt = new Date();
                 await order.save();
 
-                for (const item of order.items) {
+                
+                for (const item of order.orderItems) {
                     await Product.findByIdAndUpdate(item.product, {
                         $inc: { stock: -item.quantity }
                     });
                 }
 
+                
                 await Cart.findOneAndUpdate({ user: order.user }, { items: [] });
 
                 console.log(`✅ Order ${order._id} successfully paid by ${customer.email}`);
             } else {
                 console.log(`⚠️ Order not found for reference: ${reference}`);
+                
+                return res.sendStatus(200); 
             }
         }
 
-        res.sendStatus(200);
+        
+        return res.sendStatus(200);
 
     } catch (error) {
         console.error("Webhook verification error:", error);
-        res.status(500).json({ error: error.message || 'validated payment failed' });
+        return res.status(500).json({ error: error.message || 'validated payment failed' });
     }
 };
+
 
 
 
