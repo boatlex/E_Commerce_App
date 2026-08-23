@@ -30,6 +30,8 @@ const OrdersPage = () => {
 
   const orders = ordersData?.orders || []
 
+  console.log(orders)
+
   return (
     <div className='space-y-6'>
       <div className='flex flex-col gap-2'>
@@ -64,7 +66,7 @@ const OrdersPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {orders.map((order) => {
+                  {orders?.map((order) => {
                     const totalQuantity = order.orderItems.reduce((sum, item) =>
                       sum + item.quantity, 0
                     )
@@ -87,7 +89,7 @@ const OrdersPage = () => {
                           <div className='font-medium'>{totalQuantity} items</div>
                           <div className='text-sm opacity-60'>
                             {order.orderItems[1]?.name}
-                            {order.orderItems.length > 1 && `+{order.orderItems.length - 1} more`}
+                            {order.orderItems.length > 1 && `+${order.orderItems.length - 1} more`}
                             </div>
                         </td>
                         <td>
@@ -102,10 +104,10 @@ const OrdersPage = () => {
                           className='select select-sm'
                           disabled = {updateStatusMutation.isPending}
                           >
-                            <option value={panding}>pending</option>
-                            <option value={shipped}>shipped</option>
-                            <option value={delivered}>delivered</option>
-                            <option value={cancelled}>cancelled</option>
+                            <option value="panding">pending</option>
+                            <option value="shipped">shipped</option>
+                            <option value="delivered">delivered</option>
+                            <option value="cancelled">cancelled</option>
                           </select>
                         </td>
                         <td>

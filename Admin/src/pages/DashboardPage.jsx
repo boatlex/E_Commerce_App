@@ -83,7 +83,7 @@ const DashboardPage = () => {
                   </thead>
 
                   <tbody>
-                    {recentOrders.map((order)=>(
+                    {recentOrders?.map((order)=>(
                       <tr key={order._id}>
                         <td>
                           <span className='font-medium'>{order._id.slice(-8).toUpperCase()}</span>
