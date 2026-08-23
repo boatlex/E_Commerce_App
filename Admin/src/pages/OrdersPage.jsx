@@ -104,7 +104,7 @@ const OrdersPage = () => {
                           className='select select-sm'
                           disabled = {updateStatusMutation.isPending}
                           >
-                            <option value="panding">pending</option>
+                            <option value="pending">pending</option>
                             <option value="shipped">shipped</option>
                             <option value="delivered">delivered</option>
                             <option value="cancelled">cancelled</option>
