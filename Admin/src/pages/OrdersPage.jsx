@@ -88,7 +88,7 @@ const OrdersPage = () => {
                         <td>
                           <div className='font-medium'>{totalQuantity} items</div>
                           <div className='text-sm opacity-60'>
-                            {order.orderItems[1]?.name}
+                            {order.orderItems[0]?.name}
                             {order.orderItems.length > 1 && `+${order.orderItems.length - 1} more`}
                             </div>
                         </td>
