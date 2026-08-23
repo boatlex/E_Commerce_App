@@ -16,6 +16,7 @@ import reviewRoutes from "./routes/review.route.js";
 import productRoutes from "./routes/product.route.js";
 import cartRoutes from "./routes/cart.route.js";
 import paymentRoutes from "./routes/payment.route.js";
+import webhookRoutes from "./routes/webhook.route.js";
 
 
 const app = express()
@@ -33,7 +34,13 @@ app.use(cors({
 const __dirname = path.resolve()
 const PORT = ENV.PORT || 3000 
 
-app.use(express.json())
+app.use(express.json({
+    verify: (req, res, buf) => {
+         if (req.originalUrl.includes('paystack')) {
+            req.rawBody = buf; 
+        }
+    }}))
+
 
 app.use(clerkMiddleware())
 
@@ -51,6 +58,7 @@ app.use("/api/reviews", reviewRoutes)
 app.use("/api/products", productRoutes)
 app.use("/api/carts", cartRoutes)
 app.use("/api/payment", paymentRoutes)
+app.use("/api/webhooks", webhookRoutes)
 
 
 if (ENV.NODE_ENV === "production") {
