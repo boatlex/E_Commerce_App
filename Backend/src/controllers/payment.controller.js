@@ -109,46 +109,49 @@ export const intializedPayment = async (req, res) => {
 
 export const validatedPayment = async (req, res) => {
     try {
+        
+        const payload = req.rawBody ? req.rawBody : JSON.stringify(req.body);
+
         const hash = crypto
             .createHmac('sha512', ENV.PAYSTACK_SECRET_KEY)
-            .update(JSON.stringify(req.body)) 
+            .update(payload) 
             .digest('hex');
 
         if (hash !== req.headers['x-paystack-signature']) {
-            return res.status(401).json({ message: "Unauthorized: Invalid webhook signature" });
+            console.error("❌ Paystack signature verification failed.");
+            return res.status(401).json({ message: "Unauthorized: Invalid signature" });
         }
 
         const event = req.body;
 
-        
         if (event.event === 'charge.success') {
-            const { reference, customer } = event.data;
-            
+            const { reference } = event.data;
             
             const order = await Order.findOne({ paymentReference: reference });
 
             if (order) {
                 order.paymentStatus = "paid";
-                order.status = "pending"; 
-                order.isPaid = true;         
+                order.isPaid = true; 
+                order.status = "pending"        
                 order.paidAt = new Date();
+                
                 await order.save();
 
                 
-                for (const item of order.orderItems) {
-                    await Product.findByIdAndUpdate(item.product, {
-                        $inc: { stock: -item.quantity }
-                    });
+                if (order.orderItems && order.orderItems.length > 0) {
+                    for (const item of order.orderItems) {
+                        await Product.findByIdAndUpdate(item.product, {
+                            $inc: { stock: -item.quantity }
+                        });
+                    }
                 }
 
                 
                 await Cart.findOneAndUpdate({ user: order.user }, { items: [] });
-
-                console.log(`✅ Order ${order._id} successfully paid by ${customer.email}`);
-            } else {
-                console.log(`⚠️ Order not found for reference: ${reference}`);
                 
-                return res.sendStatus(200); 
+                console.log(`✅ MongoDB Order ${order._id} successfully switched to PAID.`);
+            } else {
+                console.warn(`⚠️ Target order reference not found: ${reference}`);
             }
         }
 
@@ -156,10 +159,11 @@ export const validatedPayment = async (req, res) => {
         return res.sendStatus(200);
 
     } catch (error) {
-        console.error("Webhook verification error:", error);
-        return res.status(500).json({ error: error.message || 'validated payment failed' });
+        console.error("💥 Critical Webhook Exception:", error);
+        return res.status(500).json({ error: error.message });
     }
 };
+
 
 
 
