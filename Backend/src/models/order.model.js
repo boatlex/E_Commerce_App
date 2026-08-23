@@ -18,11 +18,11 @@ const shippingAddressSchema = new mongoose.Schema({
         required: true,
     },
     zipCode: {
-        type: Number,
+        type: String,
         required: true,
     },
     phoneNumber: {
-        type: Number,
+        type: String,
         required: true,
     },
 });
@@ -101,6 +101,9 @@ const orderSchema = new mongoose.Schema({
         type: Date,
     },
     deliveredAt: {
+        type: Date,
+    },
+    cancelledAt: {
         type: Date,
     },
 }, { timestamps: true });

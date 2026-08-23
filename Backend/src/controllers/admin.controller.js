@@ -222,7 +222,7 @@ export const updatedOrderStatus = async (req, res) => {
 
         await order.save()
 
-        res.status(200).json({ message: "Order Status Updated Successfully", orders })
+        res.status(200).json({ message: "Order Status Updated Successfully", order })
     } catch (error) {
         console.error("Error Updating Status", error)
         res.status(500).json({ message: "Internal Server Error" })
