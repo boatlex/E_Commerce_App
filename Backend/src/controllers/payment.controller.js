@@ -1,6 +1,6 @@
 import axios from "axios";
 import { ENV } from "../config/env.js";
-import crypto from "crypto"; 
+import crypto from "crypto";
 import { Cart } from "../models/cart.model.js";
 import { Order } from "../models/order.model.js";
 import { Product } from "../models/product.model.js";
@@ -41,7 +41,7 @@ export const intializedPayment = async (req, res) => {
                 product: product._id.toString(),
                 name: product.name,
                 price: product.price,
-                quantity: item.quantity, 
+                quantity: item.quantity,
                 image: product.images?.[0] || ""
             });
         }
@@ -61,11 +61,21 @@ export const intializedPayment = async (req, res) => {
             {
                 email: user.email,
                 amount: paystackAmount,
+
+                customer: {
+                    first_name: shippingAddress.fullName.split(" ")[0] || "Customer",
+                    last_name: shippingAddress.fullName.split(" ").slice(1).join(" ") || "Name",
+                    phone: String(shippingAddress.phoneNumber || "")
+                },
+                
                 metadata: {
-                    userId: user._id.toString(), 
+                    userId: user._id.toString(),
                     cartCount: validateItems.length,
                     shippingAddress: shippingAddress,
                     items: validateItems,
+
+                    customer_name: shippingAddress.fullName,
+                    customer_phone: shippingAddress.phoneNumber,
                     custom_fields: [
                         {
                             display_name: "Customer Full Name",
@@ -92,11 +102,11 @@ export const intializedPayment = async (req, res) => {
 
         await Order.create({
             user: user._id,
-            clerkId: user.clerkId || req.user.id || "clerk_default_dev_id", 
-            orderItems: validateItems,                                     
+            clerkId: user.clerkId || req.user.id || "clerk_default_dev_id",
+            orderItems: validateItems,
             shippingAddress: shippingAddress,
             totalPrice: total,
-            paymentReference: response.data.data.reference, 
+            paymentReference: response.data.data.reference,
             paymentStatus: "pending"
         });
 
@@ -116,7 +126,7 @@ export const validatedPayment = async (req, res) => {
 
         const hash = crypto
             .createHmac('sha512', ENV.PAYSTACK_SECRET_KEY)
-            .update(payload) 
+            .update(payload)
             .digest('hex');
 
         if (hash !== req.headers['x-paystack-signature']) {
@@ -128,21 +138,22 @@ export const validatedPayment = async (req, res) => {
 
         if (event.event === 'charge.success') {
             const { reference, metadata } = event.data;
-            
+
             const order = await Order.findOne({ paymentReference: reference });
 
             if (order) {
                 if (!order.isPaid) {
                     order.paymentStatus = "paid";
-                    order.isPaid = true; 
-                    order.status = "pending";        
+                    order.isPaid = true;
+                    order.status = "pending";
                     order.paidAt = new Date();
 
                     if (metadata) {
-                        order.shippingAddress.fullName = metadata.customerName || order.shippingAddress.fullName;
-                        order.shippingAddress.phoneNumber = metadata.customerPhone || order.shippingAddress.phoneNumber;
+                        order.shippingAddress.fullName = metadata.customer_name || order.shippingAddress.fullName;
+                        order.shippingAddress.phoneNumber = metadata.customer_phone || order.shippingAddress.phoneNumber;
                     }
-                    
+
+
                     await order.save();
 
                     if (order.orderItems && order.orderItems.length > 0) {
@@ -153,9 +164,9 @@ export const validatedPayment = async (req, res) => {
                         }
                     }
 
-                
+
                     await Cart.findOneAndUpdate({ user: order.user }, { items: [] });
-                    
+
                     console.log(`✅ MongoDB Order ${order._id} successfully switched to PAID.`);
                 } else {
                     console.log(`ℹ️ Order ${order._id} was already previously marked as paid.`);
