@@ -70,7 +70,7 @@ export interface Order {
         status:string,
     },
     totalPrice:number,
-    status:"pending"|"shipped"|"delivered"|"cancilled",
+    status:"pending"|"shipped"|"delivered"|"cancelled",
     hasReviewed:number,
     createdAt:string,
     updatedAt:string,
@@ -78,7 +78,7 @@ export interface Order {
 
 export interface OrdertItem{
     _id:string,
-    product: string | Product,
+    product:Product,
     name:string,
     price:number,
     quantity:number,
