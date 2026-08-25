@@ -56,7 +56,7 @@ export interface Order {
     _id: string,
     user: String,
     clerkId: string,
-    orderitems: OrdertItem[],
+    orderItems: OrdertItem[],
     shippingAddress: {
         fullName: string,
         streetAddress: string,
