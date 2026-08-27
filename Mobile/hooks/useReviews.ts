@@ -15,7 +15,8 @@ export const useReviews =()=>{
 
  const createReview = useMutation({
     mutationFn: async (data:createReviewData)=>{
-     const response = await api.post("/review")
+      console.log(data)
+     const response = await api.post("/reviews", data)
        return response.data
     },
     onSuccess : ()=>{
