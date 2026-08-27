@@ -34,6 +34,6 @@ const reviewSchema = new mongoose.Schema({
 reviewSchema.index({ productId: 1 });
 
 // 2. INTEGRITY INDEX: Strictly prevents duplicate reviews for the same item per order
-// reviewSchema.index({ orderId: 1, productId: 1, userId: 1 }, { unique: true });
+reviewSchema.index({ orderId: 1, productId: 1, userId: 1 }, { unique: true });
 
 export const Review = mongoose.model("Review", reviewSchema);
