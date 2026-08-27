@@ -2,8 +2,6 @@ import { Review } from "../models/review.model.js";
 import { Order } from "../models/order.model.js";
 import { Product } from "../models/product.model.js";
 
-
-
 export const createReview = async (req, res) => {
     try {
         const { productId, orderId, rating, comment } = req.body;
@@ -71,11 +69,6 @@ export const createReview = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
-
-
-
-
-
 
 export const deleteReview = async (req, res) => {
     try {
