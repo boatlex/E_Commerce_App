@@ -44,10 +44,10 @@ const RatingModal = ({
 
                     <KeyboardAvoidingView
                         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                        className='w-full max-w-md items-center justify-center'
+                        className=' flex-1 w-full max-w-md items-center justify-center'
                     >
                         <TouchableWithoutFeedback>
-                            <View className='bg-background rounded-3xl p-6 w-full max-h-[80%]'>
+                            <View className='bg-background rounded-3xl p-6 w-full max-h-[93%]'>
                                 <View className='items-center mb-4'>
                                     <View className='bg-primary/20 rounded-full w-16 h-16 items-center justify-center mb-3'>
                                         <Ionicons name='star' size={32} color={"#1DB954"} />
@@ -108,7 +108,7 @@ const RatingModal = ({
                                                 {/* Multi-line Review Comment Box */}
                                                 <View className='bg-background rounded-xl p-3 border border-surface mt-2'>
                                                     <TextInput
-                                                        className="text-text-primary text-sm min-h-[70px] max-h-[120px] p-0"
+                                                        className="text-text-primary text-sm min-h-[30px] max-h-[120px] p-0"
                                                         placeholder="Write your review comments here (optional)..."
                                                         placeholderTextColor="#666666"
                                                         multiline

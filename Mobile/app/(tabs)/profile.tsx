@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native'
 import React from 'react'
 import { Redirect, router, Tabs } from 'expo-router'
 import { Ionicons } from "@expo/vector-icons"
@@ -20,6 +20,16 @@ const ProfileScreen = () => {
   const handleMenuPress = (action: (typeof Menu_Items)[number]['action']) => {
     if (action === "/profile") return
     router.push(action)
+  }
+
+  const handleSignOut = ()=>{
+     Alert.alert("Sign Out","Are You Sure You Want to Logout?", [
+           {text:"Cancel", style:"cancel"},
+           {
+            text:"LogOut", style:"destructive",
+            onPress:()=>signOut()
+           }
+     ])
   }
 
   return (
@@ -118,7 +128,7 @@ const ProfileScreen = () => {
           className='flex-row items-center rounded-xl 
                justify-center py-5 mx-6 mb-3 border-2 border-gray-500/20'
           activeOpacity={0.8}
-          onPress={()=>signOut()}
+          onPress={handleSignOut}
         >
           <Ionicons name='log-out-outline' size={22} color={"#EF4444"} />
           <Text className='text-red-500 font-bold text-base ml-2'>Sign Out</Text>
