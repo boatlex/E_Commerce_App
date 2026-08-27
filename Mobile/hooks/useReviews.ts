@@ -6,6 +6,7 @@ interface createReviewData{
     productId:string
     orderId:string
     rating:number
+    comment:string
 }
 
 export const useReviews =()=>{

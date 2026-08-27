@@ -12,6 +12,7 @@ import EmptyUi from '../components/EmptyUi'
 import { Image } from 'expo-image'
 import { capitalizeFirstLetter, formatDate, getStatusColor } from '@/lib/utils'
 import RatingModal from '../components/RatingModal'
+import ProductsGrid from '../components/ProductsGrid'
 
 const OrdersScreen = () => {
   const { data: orders, isError, isLoading } = useOrders()
@@ -19,6 +20,8 @@ const OrdersScreen = () => {
   const [showRatingModal, setShowRatingModal] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [productRatings, setProductRatings] = useState<{ [key: string]: number }>({})
+  const [productComments, setProductComments] = useState<{ [key: string]: string }>({})
+
 
   const router = useRouter()
 
@@ -26,17 +29,20 @@ const OrdersScreen = () => {
     setShowRatingModal(true)
     setSelectedOrder(order)
 
-    const initialRatings: { [key: string]: number } = {}
 
+    const initialRatings: { [key: string]: number } = {}
+    const initialComments: { [key: string]: string } = {}
     const itemsArray = order?.orderItems || []
-    
+
     itemsArray.forEach((item) => {
       const productId = item?.product?._id
       if (productId) {
         initialRatings[productId] = 0
+        initialComments[productId] = ""
       }
     })
     setProductRatings(initialRatings)
+    setProductComments(initialComments)
   }
 
   const handleSubmitRating = async () => {
@@ -55,12 +61,16 @@ const OrdersScreen = () => {
         itemsArray.map((item) => {
           // Get the specific rating for this item from state
           const productId = item?.product?._id
+
+               if (!productId) return Promise.resolve();
           const itemRating = productRatings[productId]
+          const itemComment = productComments[productId] || ""
 
           return createReviewAsync({
-            productId: productId,
+             productId: productId,
             orderId: selectedOrder._id,
-            rating: itemRating
+            rating: itemRating,
+            comment: itemComment.trim(),
           })
         })
       )
@@ -68,12 +78,17 @@ const OrdersScreen = () => {
       Alert.alert("Success", "Thank you for your feedback!")
       setShowRatingModal(false)
       setProductRatings({})
+      setProductComments({})
       setSelectedOrder(null)
 
     } catch (error: any) {
       Alert.alert("Error", error?.response?.data?.error || "Failed to submit ratings.")
     }
   }
+
+  // const handleCommentChange =(productId, comment)=>{
+  //    setProductComments((prev)=>({...prev, [productId]:comment}))
+  // }
 
   return (
     <SafeScreen>
@@ -104,9 +119,9 @@ const OrdersScreen = () => {
                   {orders?.map((order) => {
                     const itemsArray = order?.orderItems || []
                     const totalItems = itemsArray.reduce((sum, item) => sum + (item?.quantity || 0), 0)
-                    
+
                     const firstImage = itemsArray[0]?.image || ""
-                    
+
                     return (
                       <View key={order._id} className='bg-surface rounded-3xl p-5 mb-4'>
                         <View className='flex-row mb-4'>
@@ -153,7 +168,7 @@ const OrdersScreen = () => {
                             {item?.name}       x {item?.quantity}
                           </Text>
                         ))}
-                        
+
                         <View className='border-t border-background-lighter pt-3 flex-row
                              justify-between items-center'>
                           <View>
@@ -189,17 +204,22 @@ const OrdersScreen = () => {
                 </View>
               </ScrollView>
             )}
-            <RatingModal
-            visible={showRatingModal}
-            onClose = {()=>setShowRatingModal(false)}
-            order= {selectedOrder}
-            productRatings={productRatings}
-            onSubmit ={handleSubmitRating}
-            isSubmitting={isCreatingReview}
-            onRatingChange={(productId, rating)=>
-              setProductRatings((prev)=>({...prev, [productId]:rating}))
-            }
-            />
+      <RatingModal
+        visible={showRatingModal}
+        onClose={() => setShowRatingModal(false)}
+        order={selectedOrder}
+        productRatings={productRatings}
+        comments={productComments}       
+        handleComment={(productId, comment)=>
+             setProductComments((prev)=>({...prev, [productId]:comment}))
+        }   
+        onSubmit={handleSubmitRating}
+        isSubmitting={isCreatingReview}
+        onRatingChange={(productId, rating) =>
+          setProductRatings((prev) => ({ ...prev, [productId]: rating }))
+        }
+
+      />
     </SafeScreen>
   )
 }
