@@ -33,19 +33,23 @@ try {
     if (!productInOrder) {
         return res.status(404).json({ message: "Product Not Found in Order" });
     }
-
+       let review
     const existingReview = await Review.findOne({ productId, orderId, userId: user._id });
-
     if (existingReview) {
-        return res.status(400).json({ message: "You have already reviewed this product for this order" });
-    }
-
-    const review = await Review.create({
+        //update existing review
+        existingReview.rating = rating
+        existingReview.orderId = orderId
+        review = await existingReview.save()
+    }else{
+        review = await Review.create({
         productId,
         userId: user._id,
         orderId,
         rating
     });
+    }
+
+    
 
     const reviews = await Review.find({ productId });
     const totalRating = reviews.reduce((sum, rev) => sum + rev.rating, 0);
