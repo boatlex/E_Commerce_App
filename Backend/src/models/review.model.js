@@ -31,21 +31,21 @@ const reviewSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // 1. PERFORMANCE INDEX
-reviewSchema.index({ productId: 1 }, { background: true });
+// reviewSchema.index({ productId: 1 }, { background: true });
 
-// 2. INTEGRITY INDEX: Added background true so it never locks your server boot timeline again
-reviewSchema.index(
-  { orderId: 1, productId: 1, userId: 1 }, 
-  { unique: true, background: true } 
-);
+// // 2. INTEGRITY INDEX: Added background true so it never locks your server boot timeline again
+// reviewSchema.index(
+//   { orderId: 1, productId: 1, userId: 1 }, 
+//   { unique: true, background: true } 
+// );
 
 export const Review = mongoose.model("Review", reviewSchema);
 
 // This safe block will catch the index results asynchronously while your app stays online
-Review.on('index', (error) => {
-  if (error) {
-    console.error('⚠️ MongoDB Index build background warning:', error.message);
-  } else {
-    console.log('✅ Review Collection indexes built successfully in the background.');
-  }
-});
+// Review.on('index', (error) => {
+//   if (error) {
+//     console.error('⚠️ MongoDB Index build background warning:', error.message);
+//   } else {
+//     console.log('✅ Review Collection indexes built successfully in the background.');
+//   }
+// });
