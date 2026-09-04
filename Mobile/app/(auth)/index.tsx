@@ -2,6 +2,10 @@ import { View, Text, Image, TouchableOpacity, ActivityIndicator } from 'react-na
 import React from 'react'
 import useSocialAuth from '@/hooks/useSocialAuth'
 //import {Image} from "expo-router"
+import * as WebBrowser from "expo-web-browser"
+
+
+WebBrowser.maybeCompleteAuthSession()
 
 const AuthScreen = () => {
   const { loadingStrategy, handleSocialAuth } = useSocialAuth()
@@ -13,9 +17,9 @@ const AuthScreen = () => {
         resizeMode='contain'
         className='size-48'
       />
-      <View className='gap-2 mt-3'>
+      <View className='w-full gap-2 mt-3'>
         <TouchableOpacity className='flex-row justify-center items-center
-           bg-white rounded-full px-6 border border-grey-300 py-3'
+           bg-white rounded-full px-6 border border-gray-300 py-3'
           onPress={() => handleSocialAuth("oauth_google")}
           disabled={isAnyLoading}
           style={{
@@ -61,7 +65,7 @@ const AuthScreen = () => {
         By Signing Up, You Agree to Our <Text className='text-blue-500'>
           Terms
         </Text>{", "}
-        <Text className='text-blue-500'>Private Policy</Text> {", and "}
+        <Text className='text-blue-500'>Privacy Policy</Text> {", and "}
         <Text className='text-blue-500'>Cookie Use</Text>
       </Text>
     </View>

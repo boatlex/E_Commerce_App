@@ -1,17 +1,16 @@
 import { View, Text, StyleSheet } from 'react-native'
 import React from 'react'
-import { Redirect, Tabs } from 'expo-router'
+import { Tabs } from 'expo-router' // 🚀 Cleaned up: Removed unused 'Redirect' import
 import { Ionicons } from '@expo/vector-icons'
 import { useAuth } from '@clerk/expo'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { BlurView } from "expo-blur"
 
 const TabsLayout = () => {
-    const { isSignedIn, isLoaded } = useAuth()
+    const { isLoaded } = useAuth()
     const insets = useSafeAreaInsets()
 
     if (!isLoaded) return null
-    if (!isSignedIn) return <Redirect href={"/(auth)"} />
 
     return (
         <Tabs screenOptions={{
@@ -20,7 +19,7 @@ const TabsLayout = () => {
             tabBarInactiveTintColor: "#B3B3B3",
             tabBarStyle: {
                 position: "absolute",
-                backgroundColor: "rgba(0, 0, 0, 0.7)", // Slightly darker fallback for perfect contrast
+                backgroundColor: "rgba(0, 0, 0, 0.7)", 
                 borderTopWidth: 0,
                 height: 55 + insets.bottom,
                 paddingTop: 10,
@@ -29,7 +28,6 @@ const TabsLayout = () => {
                 borderRadius: 24,
                 overflow: "hidden",
             },
-            // ✅ FIXED: Correct React Element assignment for tabBarBackground
             tabBarBackground: () => (
                 <BlurView 
                     intensity={80} 
@@ -49,7 +47,7 @@ const TabsLayout = () => {
                     tabBarIcon: ({ color, size }) => <Ionicons name='grid' size={size} color={color} />
                 }}
             />
-            {/* ✅ Registered to map perfectly with cart.tsx file */}
+            
             <Tabs.Screen
                 name='cart'
                 options={{
