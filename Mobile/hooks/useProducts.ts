@@ -1,27 +1,30 @@
+
 import { useApi } from '../lib/api'
 import { useQuery } from '@tanstack/react-query'
 import { Product } from '@/types'
+import { useAuth } from '@clerk/expo' 
 
 const useProducts = () => {
-
   const api = useApi()
+  const { isLoaded, isSignedIn } = useAuth() 
 
   const { data: results, isLoading, isError } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
-      const { data } = await api.get<{products:Product[]}>("/products")
+      const { data } = await api.get<{products: Product[]}>("/products")
       return data?.products
-    }
+    },
+   
+    enabled: isLoaded && isSignedIn, 
   })
-
 
   return {
     results,
-    isLoading,
+    isLoading: !isLoaded || !isSignedIn || isLoading,
     isError,
   }
-
-
 }
 
 export default useProducts
+
+

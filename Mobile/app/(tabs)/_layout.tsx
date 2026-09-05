@@ -1,20 +1,16 @@
 import { View, Text, StyleSheet } from 'react-native'
 import React from 'react'
-import { Tabs, Redirect } from 'expo-router' 
+import { Tabs } from 'expo-router' 
 import { Ionicons } from '@expo/vector-icons'
 import { useAuth } from '@clerk/expo'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { BlurView } from "expo-blur"
 
 export default function TabsLayout() {
-    const { isLoaded, isSignedIn } = useAuth()
+    const { isLoaded } = useAuth()
     const insets = useSafeAreaInsets()
 
     if (!isLoaded) return null
-
-    if (!isSignedIn) {
-        return <Redirect href="/(auth)" />
-    }
 
     return (
         <Tabs screenOptions={{
@@ -36,7 +32,7 @@ export default function TabsLayout() {
                 <BlurView 
                     intensity={80} 
                     tint='dark' 
-                    style={StyleSheet.absoluteFill}
+                    style={StyleSheet.absoluteFillObject} 
                 />
             ),
             tabBarLabelStyle: {
@@ -48,7 +44,7 @@ export default function TabsLayout() {
                 name='index'
                 options={{
                     title: "Shop",
-                    tabBarIcon: ({ color, size }) => <Ionicons name='grid' size={size} color={color} />
+                    tabBarIcon:({ color, size }: { color: string, size: number }) => <Ionicons name='grid' size={size} color={color} />
                 }}
             />
             
@@ -56,90 +52,22 @@ export default function TabsLayout() {
                 name='cart'
                 options={{
                     title: "Cart",
-                    tabBarIcon: ({ color, size }) => <Ionicons name='cart' size={size} color={color} />
+                    tabBarIcon: ({ color, size }: { color: string, size: number })=> <Ionicons name='cart' size={size} color={color} />
                 }}
             />
             <Tabs.Screen
                 name='profile'
                 options={{
                     title: "Profile",
-                    tabBarIcon: ({ color, size }) => <Ionicons name='person' size={size} color={color} />
+                    tabBarIcon:({ color, size }: { color: string, size: number }) => <Ionicons name='person' size={size} color={color} />
                 }}
             />
         </Tabs>
     )
 }
 
-// 🚀 REMOVE: Delete the old "export default TabsLayout" line from the bottom
 
 
 
-// import { View, Text, StyleSheet } from 'react-native'
-// import React from 'react'
-// import { Tabs } from 'expo-router' // 🚀 Cleaned up: Removed unused 'Redirect' import
-// import { Ionicons } from '@expo/vector-icons'
-// import { useAuth } from '@clerk/expo'
-// import { useSafeAreaInsets } from 'react-native-safe-area-context'
-// import { BlurView } from "expo-blur"
 
-// const TabsLayout = () => {
-//     const { isLoaded } = useAuth()
-//     const insets = useSafeAreaInsets()
 
-//     if (!isLoaded) return null
-
-//     return (
-//         <Tabs screenOptions={{
-//             headerShown: false,
-//             tabBarActiveTintColor: "#1DB954",
-//             tabBarInactiveTintColor: "#B3B3B3",
-//             tabBarStyle: {
-//                 position: "absolute",
-//                 backgroundColor: "rgba(0, 0, 0, 0.7)", 
-//                 borderTopWidth: 0,
-//                 height: 55 + insets.bottom,
-//                 paddingTop: 10,
-//                 marginHorizontal: 30, 
-//                 marginBottom: insets.bottom || 16,
-//                 borderRadius: 24,
-//                 overflow: "hidden",
-//             },
-//             tabBarBackground: () => (
-//                 <BlurView 
-//                     intensity={80} 
-//                     tint='dark' 
-//                     style={StyleSheet.absoluteFill}
-//                 />
-//             ),
-//             tabBarLabelStyle: {
-//                 fontSize: 12,
-//                 fontWeight: '600',
-//             }
-//         }}>
-//             <Tabs.Screen
-//                 name='index'
-//                 options={{
-//                     title: "Shop",
-//                     tabBarIcon: ({ color, size }) => <Ionicons name='grid' size={size} color={color} />
-//                 }}
-//             />
-            
-//             <Tabs.Screen
-//                 name='cart'
-//                 options={{
-//                     title: "Cart",
-//                     tabBarIcon: ({ color, size }) => <Ionicons name='cart' size={size} color={color} />
-//                 }}
-//             />
-//             <Tabs.Screen
-//                 name='profile'
-//                 options={{
-//                     title: "Profile",
-//                     tabBarIcon: ({ color, size }) => <Ionicons name='person' size={size} color={color} />
-//                 }}
-//             />
-//         </Tabs>
-//     )
-// }
-
-// export default TabsLayout;
